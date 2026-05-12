@@ -451,7 +451,7 @@ img { max-width: 100%; display: block; }
   justify-content: center;
   min-width: 34px;
   height: 34px;
-  padding: 0 8px;
+  padding: 5px 8px 1px;
   border-radius: 4px;
   color: white;
   font-weight: 700;
