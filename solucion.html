@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solución replicable · PNUD Guatemala</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets/css/base-minimal.min.css">
+<link rel="stylesheet" href="assets/css/undp-custom.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<div id="contenido"></div>
+
+<div id="siteFooter"></div>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  mountChrome("soluciones");
+  const id = qs("id") || "s-001";
+  const s = getSolucion(id) || SOLUCIONES[0];
+  const proyectos = (s.proyectos||[]).map(getProyecto).filter(Boolean);
+  const docs = (s.documentos||[]).map(getRecurso).filter(Boolean);
+
+  const pic = foto(s.id);
+  document.getElementById("contenido").innerHTML = `
+    <section class="detail-header ${pic?'has-photo':''}" ${pic?`style="background-image:url('${pic}');"`:''}>
+      <div class="container">
+        <div class="breadcrumb" style="color:rgba(255,255,255,0.7); padding:0 0 8px;">
+          <a href="index.html" style="color:rgba(255,255,255,0.7);">Inicio</a>
+          <span class="sep">/</span>
+          <a href="soluciones.html" style="color:rgba(255,255,255,0.7);">Soluciones</a>
+        </div>
+        <div class="eyebrow">${s.tipo} · Solución replicable</div>
+        <h1>${s.nombre}</h1>
+        <div style="margin-top:24px;">
+          <a href="#" class="btn btn-primary">${icon("download",{size:16})} Descargar paquete completo</a>
+          <a href="#" class="btn" style="background:transparent; color:white; border-color:white;">${icon("document",{size:16})} Plantillas (${s.plantillas.length})</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="detail-body">
+        <div class="detail-main">
+
+          <h2 class="h2-icon">${icon("target")} Problema que resuelve</h2>
+          <p>${s.problema}</p>
+
+          <h2 class="h2-icon">${icon("pin")} Cuándo usar esta solución</h2>
+          <p>${s.cuandoUsar}</p>
+
+          <h2 class="h2-icon">${icon("communities")} Actores necesarios</h2>
+          <p>${s.actores}</p>
+
+          <h2 class="h2-icon">${icon("tools")} Pasos de implementación</h2>
+          <ol style="padding-left:0; list-style:none;">
+            ${s.pasos.map((paso,i)=>`<li style="display:flex; gap:16px; margin-bottom:16px; align-items:flex-start;">
+              <span style="background:var(--undp-blue); color:white; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">${i+1}</span>
+              <div style="padding-top:4px;">${paso}</div>
+            </li>`).join("")}
+          </ol>
+
+          <h2 class="h2-icon">${icon("money")} Recursos requeridos</h2>
+          <p>${s.recursos}</p>
+
+          <h2 class="h2-icon">${icon("clock")} Tiempo estimado</h2>
+          <p>${s.tiempo}</p>
+
+          <h2 class="h2-icon">${icon("alert")} Riesgos</h2>
+          <p>${s.riesgos}</p>
+
+          <h2 class="h2-icon">${icon("dashboard")} Indicadores sugeridos</h2>
+          <p>${s.indicadores}</p>
+
+          <h2 class="h2-icon">${icon("document")} Plantillas disponibles</h2>
+          <table class="table">
+            <thead><tr><th>Plantilla</th><th>Formato</th><th>Acción</th></tr></thead>
+            <tbody>${s.plantillas.map(p=>`<tr><td>${p}</td><td><span class="tag">DOCX/XLSX</span></td><td><a href="#" style="display:inline-flex;align-items:center;gap:4px;">${icon("download",{size:14})} Descargar</a></td></tr>`).join("")}</tbody>
+          </table>
+
+          <h2 class="h2-icon">${icon("globe")} Casos donde se aplicó</h2>
+          <p><strong>${s.casos}</strong></p>
+
+          <h2 class="h2-icon">${icon("link")} Proyectos relacionados</h2>
+          <div class="cards-grid cols-2">${proyectos.map(proyectoCard).join("")}</div>
+
+          <h2 class="h2-icon">${icon("attach")} Documentos relacionados</h2>
+          <div class="cards-grid cols-3">${docs.map(recursoCard).join("")}</div>
+        </div>
+
+        <aside class="detail-aside">
+          <h4>Tipo de solución</h4>
+          <div class="value"><span class="tag tag-blue">${s.tipo}</span></div>
+
+          <h4>ODS</h4>
+          <div class="value">${odsBadges(s.ods, 10)}</div>
+
+          <h4>Tiempo de implementación</h4>
+          <div class="value">${s.tiempo}</div>
+
+          <h4>Plantillas incluidas</h4>
+          <div class="value">${s.plantillas.length} archivos</div>
+
+          <h4>Casos documentados</h4>
+          <div class="value">${s.casos}</div>
+
+          <h4>Contacto técnico</h4>
+          <div class="value" style="display:flex;align-items:center;gap:6px;">${icon("mail",{size:16,color:"var(--undp-dark-gray)"})} <a href="mailto:${s.contacto}">${s.contacto}</a></div>
+
+          <div class="divider"></div>
+          <a href="aprendizaje.html" class="btn btn-primary btn-block">${icon("learning",{size:16})} Ir a ruta formativa</a>
+          <a href="#" class="btn btn-secondary btn-block mt-1">${icon("chat",{size:16})} Conectar con expertos</a>
+        </aside>
+      </div>
+    </section>
+  `;
+</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo de Soluciones Replicables · PNUD Guatemala</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets/css/base-minimal.min.css">
+<link rel="stylesheet" href="assets/css/undp-custom.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<section class="detail-header">
+  <div class="container">
+    <div class="breadcrumb" style="color:rgba(255,255,255,0.7); padding:0 0 8px;">
+      <a href="index.html" style="color:rgba(255,255,255,0.7);">Inicio</a>
+      <span class="sep">/</span> Catálogo de soluciones
+    </div>
+    <div class="eyebrow">Catálogo de soluciones replicables</div>
+    <h1>Metodologías y toolkits listos para adaptar</h1>
+    <p style="opacity:0.9; max-width:760px; margin:8px 0 0;">
+      Modelos probados que pueden adoptarse por instituciones, gobiernos locales, organizaciones sociales o
+      equipos técnicos. Cada solución incluye pasos, plantillas, indicadores y casos donde se aplicó.
+    </p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="kpi-grid">
+      <div class="kpi"><strong>6</strong><span>Soluciones catalogadas</span></div>
+      <div class="kpi kpi-green"><strong>42</strong><span>Réplicas documentadas</span></div>
+      <div class="kpi kpi-yellow"><strong>87%</strong><span>Con plantillas descargables</span></div>
+      <div class="kpi"><strong>12</strong><span>ODS abordados</span></div>
+    </div>
+
+    <div class="list-toolbar">
+      <div><strong>6</strong> soluciones replicables</div>
+      <div>
+        <select>
+          <option>Filtrar por tipo: Todos</option>
+          <option>Metodología</option>
+          <option>Toolkit</option>
+          <option>Modelo</option>
+          <option>Protocolo</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="cards-grid cols-3" id="listado"></div>
+  </div>
+</section>
+
+<div id="siteFooter"></div>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  mountChrome("soluciones");
+  document.getElementById("listado").innerHTML = SOLUCIONES.map(solucionCard).join("");
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comunidades de Práctica · PNUD Guatemala</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets/css/base-minimal.min.css">
+<link rel="stylesheet" href="assets/css/undp-custom.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<section class="detail-header">
+  <div class="container">
+    <div class="breadcrumb" style="color:rgba(255,255,255,0.7); padding:0 0 8px;">
+      <a href="index.html" style="color:rgba(255,255,255,0.7);">Inicio</a>
+      <span class="sep">/</span> Comunidades de práctica
+    </div>
+    <div class="eyebrow">Intercambio humano · Fase 2</div>
+    <h1>Comunidades de práctica temáticas</h1>
+    <p style="opacity:0.9; max-width:760px; margin:8px 0 0;">
+      Espacios moderados para que profesionales, equipos técnicos y socios intercambien preguntas, casos,
+      recursos y aprendizajes. La conversación entre pares —no solo el acceso a documentos— es lo que
+      acelera la aplicación del conocimiento.
+    </p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+
+    <div class="banner banner-info" id="bannerInfo"></div>
+
+    <div class="kpi-grid">
+      <div class="kpi"><strong>5</strong><span>Comunidades activas</span></div>
+      <div class="kpi kpi-green"><strong>1,303</strong><span>Miembros totales</span></div>
+      <div class="kpi kpi-yellow"><strong>184</strong><span>Hilos abiertos</span></div>
+      <div class="kpi"><strong>6,632</strong><span>Aportes documentados</span></div>
+    </div>
+
+    <h2 style="font-size:22px; border-bottom: 2px solid var(--undp-blue); display:inline-block; padding-bottom:4px;">Comunidades disponibles</h2>
+    <div class="cards-grid cols-3 mt-2" id="cmts"></div>
+
+    <h2 class="mt-3" style="font-size:22px; border-bottom: 2px solid var(--undp-blue); display:inline-block; padding-bottom:4px;">Conversaciones recientes</h2>
+    <table class="table mt-2">
+      <thead><tr><th>Tema</th><th>Comunidad</th><th>Autor</th><th>Respuestas</th><th>Última actividad</th></tr></thead>
+      <tbody>
+        <tr><td><strong>¿Cómo presupuestar el acompañamiento agroforestal en planes plurianuales?</strong></td><td>Adaptación Climática</td><td>Lucía R., MARN</td><td>12</td><td>hace 2 horas</td></tr>
+        <tr><td><strong>Plantilla para presupuesto sensible a género en municipios pequeños</strong></td><td>Red OMM</td><td>María T., SEPREM</td><td>8</td><td>hace 5 horas</td></tr>
+        <tr><td><strong>Aprendizajes del piloto de innovación pública en Mixco</strong></td><td>Innovadores Públicos</td><td>Carlos M., AccLab</td><td>21</td><td>ayer</td></tr>
+        <tr><td><strong>Cómo armonizar indicadores ODS municipales con el INE</strong></td><td>Datos para el Desarrollo</td><td>Sofía L., INE</td><td>16</td><td>ayer</td></tr>
+        <tr><td><strong>Relevo generacional en concesiones forestales: estrategias</strong></td><td>Gobernanza Forestal</td><td>Diego A., CONAP</td><td>9</td><td>hace 2 días</td></tr>
+      </tbody>
+    </table>
+
+    <h2 class="mt-3" style="font-size:22px; border-bottom: 2px solid var(--undp-blue); display:inline-block; padding-bottom:4px;">Próximos eventos comunitarios</h2>
+    <table class="table mt-2">
+      <thead><tr><th>Fecha</th><th>Evento</th><th>Comunidad</th><th>Tipo</th></tr></thead>
+      <tbody id="eventos"></tbody>
+    </table>
+  </div>
+</section>
+
+<div id="siteFooter"></div>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  mountChrome("comunidades");
+  document.getElementById("bannerInfo").innerHTML = `<span style="display:inline-flex;align-items:center;gap:8px;color:var(--undp-blue);">${icon("construction",{size:18})}</span> <strong>Módulo previsto para Fase 2.</strong> Esta vista representa la propuesta visual y funcional del módulo. La activación está sujeta a la consolidación del repositorio y la curaduría editorial.`;
+
+  const cmtPics = [
+    "reforestation-done-by-voluntary-group.jpg",
+    "female-engineer-pointing-wind-turbine-sustainable-energy-farm.jpg",
+    "farmer-using-technology-field-sunset.jpg",
+    "progressive-concept-engineers-working-wind-farm-atop-mountain.jpg",
+    "tourist-making-photo-nature.jpg"
+  ];
+  document.getElementById("cmts").innerHTML = COMUNIDADES.map((c,i)=>`
+    <div class="card">
+      <div class="card-media has-photo" style="aspect-ratio:5/2; background-image:url('${PICS_BASE+cmtPics[i%cmtPics.length]}');">
+        <span class="media-tag">COMUNIDAD</span>
+      </div>
+      <div class="card-body">
+        <div class="card-eyebrow">${c.miembros} miembros</div>
+        <h3 class="card-title">${c.nombre}</h3>
+        <div style="font-size:13px; color:var(--undp-dark-gray); margin:8px 0 16px;">
+          ${c.temas} hilos abiertos · ${c.posts.toLocaleString("es-GT")} aportes
+        </div>
+        <div class="card-meta">${odsBadges(c.ods, 3)}</div>
+        <div class="mt-2"><a href="#" class="btn btn-sm btn-primary btn-block">Unirme a la comunidad</a></div>
+      </div>
+    </div>
+  `).join("");
+
+  document.getElementById("eventos").innerHTML = EVENTOS.map(e=>{
+    const proy = getProyecto(e.proyecto);
+    return `<tr><td>${fmtDate(e.fecha)}</td><td><strong>${e.nombre}</strong><div style="font-size:12px; color:var(--undp-dark-gray);">${e.lugar}</div></td><td>${proy?.programa||"—"}</td><td><span class="tag tag-blue">${e.tipo}</span></td></tr>`;
+  }).join("");
+</script>
+</body>
+</html>

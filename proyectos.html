@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banco de Proyectos · PNUD Guatemala</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets/css/base-minimal.min.css">
+<link rel="stylesheet" href="assets/css/undp-custom.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<section class="detail-header">
+  <div class="container">
+    <div class="breadcrumb" style="color:rgba(255,255,255,0.7); padding:0 0 8px;">
+      <a href="index.html" style="color:rgba(255,255,255,0.7);">Inicio</a>
+      <span class="sep">/</span> Proyectos
+    </div>
+    <div class="eyebrow">Banco de proyectos</div>
+    <h1>Portafolio nacional de proyectos vinculados a evidencia</h1>
+    <p style="opacity:0.9; max-width:760px; margin:8px 0 0;">
+      Cada proyecto tiene una ficha estructurada con objetivos, resultados, productos generados, lecciones
+      aprendidas y herramientas vinculadas. Los proyectos no son cajas cerradas: están conectados con la
+      evidencia que producen y aplican.
+    </p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi"><strong id="kpiTotal">10</strong><span>Proyectos en el portafolio</span></div>
+      <div class="kpi kpi-green"><strong id="kpiActivos">6</strong><span>Proyectos activos</span></div>
+      <div class="kpi kpi-yellow"><strong id="kpiEscalados">2</strong><span>Escalados o replicados</span></div>
+      <div class="kpi"><strong id="kpiPresup">USD 41.9M</strong><span>Presupuesto agregado</span></div>
+    </div>
+
+    <div class="layout-with-sidebar">
+      <aside class="sidebar-filters">
+        <h3 style="margin:0 0 16px; font-size:16px;">Filtrar proyectos</h3>
+
+        <div class="filter-group">
+          <h4>Estado</h4>
+          <div class="filter-options" id="filterEstado"></div>
+        </div>
+
+        <div class="filter-group">
+          <h4>Programa</h4>
+          <div class="filter-options" id="filterPrograma"></div>
+        </div>
+
+        <div class="filter-group">
+          <h4>ODS</h4>
+          <div class="filter-options" id="filterOds"></div>
+        </div>
+
+        <div class="filter-group">
+          <h4>Territorio</h4>
+          <div class="filter-options" id="filterTerritorio"></div>
+        </div>
+
+        <div class="filter-group">
+          <h4>Donante</h4>
+          <div class="filter-options" id="filterDonante"></div>
+        </div>
+
+        <button class="btn btn-secondary btn-block" onclick="aplicar()">Aplicar filtros</button>
+      </aside>
+
+      <div>
+        <div class="list-toolbar">
+          <div><strong id="resultCount">10</strong> proyectos encontrados</div>
+          <div>
+            <label>Ordenar:
+              <select id="sortBy">
+                <option value="relevancia">Más recientes</option>
+                <option value="presupuesto">Mayor presupuesto</option>
+                <option value="nombre">Nombre A-Z</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="cards-grid cols-3" id="listadoProyectos"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="siteFooter"></div>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  mountChrome("proyectos");
+
+  function facets() {
+    const estado={}, programa={}, ods={}, territorios={}, donante={};
+    PROYECTOS.forEach(p => {
+      estado[p.estado] = (estado[p.estado]||0)+1;
+      programa[p.programa] = (programa[p.programa]||0)+1;
+      (p.ods||[]).forEach(o => ods[o] = (ods[o]||0)+1);
+      (p.territorio||[]).forEach(t => territorios[t] = (territorios[t]||0)+1);
+      donante[p.donante] = (donante[p.donante]||0)+1;
+    });
+    return { estado, programa, ods, territorios, donante };
+  }
+  function checkboxList(map, fmt = (k=>k)) {
+    return Object.entries(map).sort().map(([k,v]) =>
+      `<label class="filter-option"><input type="checkbox" value="${k}"> ${fmt(k)} <span class="count">${v}</span></label>`
+    ).join("");
+  }
+  const f = facets();
+  document.getElementById("filterEstado").innerHTML = checkboxList(f.estado);
+  document.getElementById("filterPrograma").innerHTML = checkboxList(f.programa);
+  document.getElementById("filterOds").innerHTML = Object.entries(f.ods).sort((a,b)=>a[0]-b[0]).map(([k,v])=>
+    `<label class="filter-option"><input type="checkbox" value="${k}"> <span class="ods-badge ods-${k}">${k}</span> ${ODS_NOMBRES[k]} <span class="count">${v}</span></label>`
+  ).join("");
+  document.getElementById("filterTerritorio").innerHTML = checkboxList(f.territorios, k => getTerritorio(k)?.nombre || k);
+  document.getElementById("filterDonante").innerHTML = checkboxList(f.donante);
+
+  function render(lista) {
+    document.getElementById("resultCount").textContent = lista.length;
+    document.getElementById("listadoProyectos").innerHTML = lista.map(proyectoCard).join("");
+  }
+  render(PROYECTOS);
+
+  function aplicar() {
+    const checked = sel => Array.from(document.querySelectorAll(`#${sel} input:checked`)).map(i => i.value);
+    const estado = checked("filterEstado");
+    const programa = checked("filterPrograma");
+    const ods = checked("filterOds").map(Number);
+    const terr = checked("filterTerritorio");
+    const donante = checked("filterDonante");
+    const filt = PROYECTOS.filter(p =>
+      (!estado.length || estado.includes(p.estado)) &&
+      (!programa.length || programa.includes(p.programa)) &&
+      (!ods.length || ods.some(o => p.ods.includes(o))) &&
+      (!terr.length || terr.some(t => p.territorio.includes(t))) &&
+      (!donante.length || donante.includes(p.donante))
+    );
+    render(filt);
+  }
+
+  document.getElementById("sortBy").addEventListener("change", e => {
+    let arr = [...PROYECTOS];
+    if (e.target.value==="presupuesto") arr.sort((a,b)=>b.presupuesto-a.presupuesto);
+    if (e.target.value==="nombre") arr.sort((a,b)=>a.nombre.localeCompare(b.nombre));
+    render(arr);
+  });
+
+  // KPIs
+  const total = PROYECTOS.reduce((s,p)=>s+p.presupuesto,0);
+  document.getElementById("kpiPresup").textContent = "USD " + (total/1000000).toFixed(1) + "M";
+</script>
+</body>
+</html>

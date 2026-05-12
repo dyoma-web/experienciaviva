@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lección aprendida · PNUD Guatemala</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets/css/base-minimal.min.css">
+<link rel="stylesheet" href="assets/css/undp-custom.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<div id="contenido"></div>
+
+<div id="siteFooter"></div>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  mountChrome("lecciones");
+  const id = qs("id") || "l-001";
+  const l = getLeccion(id) || LECCIONES[0];
+  const p = getProyecto(l.proyecto);
+  const docs = (l.documentos||[]).map(getRecurso).filter(Boolean);
+
+  const pic = foto(l.id);
+  document.getElementById("contenido").innerHTML = `
+    <section class="detail-header ${pic?'has-photo':''}" ${pic?`style="background-image:url('${pic}');"`:''}>
+      <div class="container">
+        <div class="breadcrumb" style="color:rgba(255,255,255,0.7); padding:0 0 8px;">
+          <a href="index.html" style="color:rgba(255,255,255,0.7);">Inicio</a>
+          <span class="sep">/</span>
+          <a href="lecciones.html" style="color:rgba(255,255,255,0.7);">Lecciones aprendidas</a>
+        </div>
+        <div class="eyebrow">Lección aprendida · ${l.proyectoNombre}</div>
+        <h1>${l.titulo}</h1>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="detail-body">
+        <div class="detail-main">
+
+          <h2 class="h2-icon">${icon("pin")} Contexto</h2>
+          <p>${l.contexto}</p>
+
+          <h2 class="h2-icon">${icon("exclam")} Problema enfrentado</h2>
+          <p>${l.problema}</p>
+
+          <h2 class="h2-icon">${icon("tools")} Qué se hizo</h2>
+          <p>${l.queSeHizo}</p>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin: 32px 0;">
+            <div style="background:#DDF7E7; padding:24px; border-left:4px solid var(--undp-green);">
+              <h3 style="margin-top:0; color:#1F6B3B; display:flex; align-items:center; gap:8px;">${icon("check",{size:20,color:"#1F6B3B"})} Qué funcionó</h3>
+              <p style="margin:0;">${l.queFunciono}</p>
+            </div>
+            <div style="background:#FBE0DD; padding:24px; border-left:4px solid var(--undp-red);">
+              <h3 style="margin-top:0; color:#8E1B0E; display:flex; align-items:center; gap:8px;">${icon("alert",{size:20,color:"#8E1B0E"})} Qué no funcionó</h3>
+              <p style="margin:0;">${l.queNoFunciono}</p>
+            </div>
+          </div>
+
+          <h2 class="h2-icon">${icon("refresh")} Condiciones para replicar</h2>
+          <p>${l.condicionesReplica}</p>
+
+          <h2 class="h2-icon">${icon("alert")} Riesgos a considerar</h2>
+          <p>${l.riesgos}</p>
+
+          <h2 class="h2-icon">${icon("document")} Recomendaciones</h2>
+          <p>${l.recomendaciones}</p>
+
+          <h2 class="h2-icon">${icon("attach")} Documentos de respaldo</h2>
+          <div class="cards-grid cols-3">${docs.map(recursoCard).join("") || '<p class="text-muted">Sin documentos.</p>'}</div>
+        </div>
+
+        <aside class="detail-aside">
+          <h4>Proyecto de origen</h4>
+          <div class="value"><a href="proyecto.html?id=${l.proyecto}">${l.proyectoNombre}</a></div>
+
+          <h4>ODS</h4>
+          <div class="value">${odsBadges(l.ods, 10)}</div>
+
+          <h4>Territorios donde aplica</h4>
+          <div class="value">${(l.territorio||[]).map(t=>getTerritorio(t)?.nombre).filter(Boolean).join(", ")}</div>
+
+          <h4>Etiquetas</h4>
+          <div class="value">${tagsHTML(l.etiquetas)}</div>
+
+          <h4>Contacto técnico</h4>
+          <div class="value" style="display:flex;align-items:center;gap:6px;">${icon("mail",{size:16,color:"var(--undp-dark-gray)"})} <a href="mailto:${l.contacto}">${l.contacto}</a></div>
+
+          <h4>Validación editorial</h4>
+          <div class="value">
+            <span class="tag tag-green" style="display:inline-flex; align-items:center; gap:4px;">${icon("check",{size:12})} Validado por equipo técnico</span>
+            <div style="font-size:11px; color:var(--undp-dark-gray); margin-top:6px;">
+              Revisado y firmado por el contacto técnico del proyecto antes de su publicación.
+            </div>
+          </div>
+
+          <div class="divider"></div>
+          <a href="briefs.html" class="btn btn-primary btn-block">${icon("pencil",{size:16})} Incluir en un brief</a>
+          <a href="#" class="btn btn-secondary btn-block mt-1">${icon("download",{size:16})} Descargar ficha (PDF)</a>
+        </aside>
+      </div>
+    </section>
+  `;
+</script>
+</body>
+</html>

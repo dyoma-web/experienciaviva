@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constructor de Briefs · PNUD Guatemala</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets/css/base-minimal.min.css">
+<link rel="stylesheet" href="assets/css/undp-custom.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<section class="detail-header">
+  <div class="container">
+    <div class="breadcrumb" style="color:rgba(255,255,255,0.7); padding:0 0 8px;">
+      <a href="index.html" style="color:rgba(255,255,255,0.7);">Inicio</a>
+      <span class="sep">/</span> Constructor de briefs
+    </div>
+    <div class="eyebrow">Herramienta editorial · No usa IA generativa</div>
+    <h1>Constructor humano de briefs</h1>
+    <p style="opacity:0.9; max-width:760px; margin:8px 0 0;">
+      No es un generador automático. Es una herramienta de apoyo editorial: usted selecciona el tema y los
+      filtros, el sistema reúne la evidencia relacionada, y un equipo humano redacta la síntesis final con
+      revisión técnica y firma institucional.
+    </p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+
+    <div class="banner banner-info" id="bannerInfo"></div>
+
+    <div style="display:grid; grid-template-columns: 2fr 1fr; gap: 32px;">
+
+      <div>
+        <h2 style="font-size:22px;">Paso 1 · Defina el alcance del brief</h2>
+        <div style="background:white; border:1px solid var(--undp-light-gray); padding:24px; margin-bottom:24px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div>
+              <label style="font-size:12px; font-weight:600; text-transform:uppercase;">Tipo de brief</label>
+              <select style="width:100%; padding:8px; margin-top:4px;">
+                <option>Brief de política pública</option>
+                <option>Ficha ejecutiva</option>
+                <option>Resumen de proyecto</option>
+                <option>Nota para donantes</option>
+                <option>Paquete temático</option>
+                <option>Ficha territorial</option>
+                <option>Resumen para comunicaciones</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:12px; font-weight:600; text-transform:uppercase;">Audiencia objetivo</label>
+              <select style="width:100%; padding:8px; margin-top:4px;">
+                <option>Tomadores de decisión nacionales</option>
+                <option>Gobiernos locales</option>
+                <option>Donantes y cooperación</option>
+                <option>Academia / investigación</option>
+                <option>Medios y comunicaciones</option>
+                <option>Comunidades de práctica</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:12px; font-weight:600; text-transform:uppercase;">Tema / programa</label>
+              <select id="bTema" style="width:100%; padding:8px; margin-top:4px;"><option value="">Seleccione…</option></select>
+            </div>
+            <div>
+              <label style="font-size:12px; font-weight:600; text-transform:uppercase;">Territorio</label>
+              <select id="bTerr" style="width:100%; padding:8px; margin-top:4px;"><option value="">Nacional</option></select>
+            </div>
+            <div>
+              <label style="font-size:12px; font-weight:600; text-transform:uppercase;">ODS prioritario</label>
+              <select id="bOds" style="width:100%; padding:8px; margin-top:4px;"><option value="">Seleccione…</option></select>
+            </div>
+            <div>
+              <label style="font-size:12px; font-weight:600; text-transform:uppercase;">Extensión</label>
+              <select style="width:100%; padding:8px; margin-top:4px;">
+                <option>2 páginas</option>
+                <option>4 páginas</option>
+                <option>8 páginas</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary mt-2" onclick="buscarEvidencia()">Buscar evidencia disponible</button>
+        </div>
+
+        <h2 style="font-size:22px;">Paso 2 · Evidencia encontrada</h2>
+        <p class="text-muted">El sistema muestra los recursos, proyectos, lecciones y herramientas relacionados. Marque los que desea incluir.</p>
+
+        <div id="evidencia"></div>
+
+        <h2 style="font-size:22px; margin-top:32px;">Paso 3 · Plantilla editorial seleccionada</h2>
+        <p class="text-muted">El equipo editorial trabajará sobre esta plantilla. Usted puede sugerir énfasis, citas o ajustes.</p>
+
+        <div style="background:white; border:1px solid var(--undp-light-gray); padding:24px; font-family:Georgia, serif;">
+          <div style="border-bottom:3px solid var(--undp-blue); padding-bottom:12px; margin-bottom:16px;">
+            <div style="font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--undp-blue);">BRIEF DE POLÍTICA PÚBLICA · PNUD GUATEMALA</div>
+            <h2 style="font-size:24px; margin:8px 0 0;">[Título del brief]</h2>
+          </div>
+          <h3 style="font-size:14px; margin:18px 0 6px; color:var(--undp-blue);">RESUMEN EJECUTIVO</h3>
+          <p style="color:#888; font-style:italic;">[Síntesis de 150 palabras elaborada por el equipo editorial]</p>
+          <h3 style="font-size:14px; margin:18px 0 6px; color:var(--undp-blue);">EL PROBLEMA</h3>
+          <p style="color:#888; font-style:italic;">[Diagnóstico con datos clave de la evidencia seleccionada]</p>
+          <h3 style="font-size:14px; margin:18px 0 6px; color:var(--undp-blue);">¿QUÉ MUESTRA LA EVIDENCIA?</h3>
+          <p style="color:#888; font-style:italic;">[Síntesis de hallazgos con citas trazables a los recursos marcados]</p>
+          <h3 style="font-size:14px; margin:18px 0 6px; color:var(--undp-blue);">RECOMENDACIONES</h3>
+          <p style="color:#888; font-style:italic;">[3 a 5 recomendaciones priorizadas, con responsables sugeridos]</p>
+          <h3 style="font-size:14px; margin:18px 0 6px; color:var(--undp-blue);">PARA SABER MÁS</h3>
+          <p style="color:#888; font-style:italic;">[Lista de recursos vinculados y contacto técnico]</p>
+        </div>
+
+        <h2 style="font-size:22px; margin-top:32px;">Paso 4 · Envíelo al equipo editorial</h2>
+        <p class="text-muted">El equipo editorial confirmará tiempos de entrega y validará el alcance.</p>
+        <div style="background:white; border:1px solid var(--undp-light-gray); padding:24px;">
+          <label style="font-size:12px; font-weight:600; text-transform:uppercase;">Notas para el equipo editorial</label>
+          <textarea rows="4" style="width:100%; padding:10px; margin-top:6px; border:1px solid var(--undp-light-gray); font-family:inherit;" placeholder="Especifique audiencia, plazo deseado, énfasis particulares…"></textarea>
+          <div class="mt-2" id="formBtns"></div>
+        </div>
+      </div>
+
+      <aside>
+        <h3 style="font-size:16px;">Flujo editorial del brief</h3>
+        <ul class="timeline mt-2">
+          <li class="current"><strong>Solicitud enviada</strong><span>Por el usuario solicitante</span></li>
+          <li><strong>Asignación de editor</strong><span>Editor temático según área</span></li>
+          <li><strong>Redacción</strong><span>Equipo editorial · 5-10 días hábiles</span></li>
+          <li><strong>Revisión técnica</strong><span>Revisor temático y oficial de área</span></li>
+          <li><strong>Aprobación</strong><span>Editor general firma el brief</span></li>
+          <li><strong>Publicación / Entrega</strong><span>Versión PDF + versión web</span></li>
+        </ul>
+
+        <div class="banner mt-3">
+          <strong>Garantías editoriales</strong>
+          <ul style="margin:8px 0 0; padding-left:20px; font-size:12px;">
+            <li>Cada cita es trazable al recurso original</li>
+            <li>Cada brief lleva firma editorial</li>
+            <li>Versionado completo de cambios</li>
+            <li>Posibilidad de errata pública</li>
+          </ul>
+        </div>
+
+        <h3 style="font-size:16px; margin-top:24px;">Briefs recientes publicados</h3>
+        <div style="font-size:13px; margin-top:8px;">
+          <div style="padding:10px 0; border-bottom:1px solid var(--undp-light-gray);">
+            <a href="#" style="font-weight:600;">Adaptación climática en el altiplano</a>
+            <div style="color:var(--undp-dark-gray); font-size:11px;">Mar 2026 · Política pública</div>
+          </div>
+          <div style="padding:10px 0; border-bottom:1px solid var(--undp-light-gray);">
+            <a href="#" style="font-weight:600;">Brechas digitales en zonas fronterizas</a>
+            <div style="color:var(--undp-dark-gray); font-size:11px;">Feb 2026 · Ficha territorial</div>
+          </div>
+          <div style="padding:10px 0;">
+            <a href="#" style="font-weight:600;">Inclusión productiva de mujeres rurales</a>
+            <div style="color:var(--undp-dark-gray); font-size:11px;">Ene 2026 · Resumen ejecutivo</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<div id="siteFooter"></div>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  mountChrome("home");
+  document.getElementById("bannerInfo").innerHTML = `<span style="display:inline-flex;align-items:center;gap:8px;color:var(--undp-blue);">${icon("shield",{size:18})}</span> <strong>Por qué no usamos IA generativa para esto.</strong> Los briefs de política pública informan decisiones de Estado. La síntesis automática introduce riesgos de imprecisión, sesgos no auditables y dilución de la trazabilidad a la evidencia fuente. Por eso, la síntesis final siempre es elaborada, revisada y firmada por equipos humanos.`;
+  document.getElementById("formBtns").innerHTML = `<a href="#" class="btn btn-primary">${icon("arrowRight",{size:16})} Enviar solicitud al equipo editorial</a> <a href="#" class="btn btn-secondary">${icon("save",{size:16})} Guardar borrador</a>`;
+
+  document.getElementById("bTema").innerHTML += [...new Set(PROYECTOS.map(p=>p.programa))].map(p=>`<option value="${p}">${p}</option>`).join("");
+  document.getElementById("bTerr").innerHTML += TERRITORIOS.map(t=>`<option value="${t.id}">${t.nombre}</option>`).join("");
+  document.getElementById("bOds").innerHTML += Object.entries(ODS_NOMBRES).map(([k,v])=>`<option value="${k}">ODS ${k}: ${v}</option>`).join("");
+
+  function buscarEvidencia() {
+    const tema = document.getElementById("bTema").value;
+    const terr = document.getElementById("bTerr").value;
+    const ods = document.getElementById("bOds").value;
+
+    const recursos = RECURSOS.filter(r =>
+      (!tema || r.programa === tema) &&
+      (!terr || r.territorio.includes(terr)) &&
+      (!ods || r.ods.includes(+ods))
+    );
+    const proyectos = PROYECTOS.filter(p =>
+      (!tema || p.programa === tema) &&
+      (!terr || p.territorio.includes(terr)) &&
+      (!ods || p.ods.includes(+ods))
+    );
+    const lecciones = LECCIONES.filter(l => proyectos.some(p => p.id === l.proyecto));
+    const sols = SOLUCIONES.filter(s => proyectos.some(p => (s.proyectos||[]).includes(p.id)));
+
+    document.getElementById("evidencia").innerHTML = `
+      <div style="background:white; border:1px solid var(--undp-light-gray); padding:24px;">
+        <h3 class="h2-icon" style="font-size:18px; margin-top:0;">${icon("attach",{size:20})} Recursos encontrados (${recursos.length})</h3>
+        ${recursos.slice(0,5).map(r=>`<label style="display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--undp-light-gray); font-size:13px;">
+          <input type="checkbox" checked>
+          <div style="flex:1;"><strong>${r.titulo}</strong><div style="color:var(--undp-dark-gray); font-size:11px;">${r.tipo} · ${r.anio} · ${r.autor}</div></div>
+        </label>`).join("") || '<p class="text-muted">Sin resultados.</p>'}
+
+        <h3 class="h2-icon" style="font-size:18px;">${icon("projects",{size:20})} Proyectos vinculados (${proyectos.length})</h3>
+        ${proyectos.slice(0,5).map(p=>`<label style="display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--undp-light-gray); font-size:13px;">
+          <input type="checkbox" checked>
+          <div style="flex:1;"><strong>${p.nombre}</strong><div style="color:var(--undp-dark-gray); font-size:11px;">${p.estado} · ${p.programa}</div></div>
+        </label>`).join("") || '<p class="text-muted">Sin resultados.</p>'}
+
+        <h3 class="h2-icon" style="font-size:18px;">${icon("lessons",{size:20})} Lecciones aprendidas (${lecciones.length})</h3>
+        ${lecciones.slice(0,5).map(l=>`<label style="display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--undp-light-gray); font-size:13px;">
+          <input type="checkbox" checked>
+          <div style="flex:1;"><strong>${l.titulo}</strong></div>
+        </label>`).join("") || '<p class="text-muted">Sin resultados.</p>'}
+
+        <h3 class="h2-icon" style="font-size:18px;">${icon("solutions",{size:20})} Soluciones replicables (${sols.length})</h3>
+        ${sols.slice(0,5).map(s=>`<label style="display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--undp-light-gray); font-size:13px;">
+          <input type="checkbox" checked>
+          <div style="flex:1;"><strong>${s.nombre}</strong><div style="color:var(--undp-dark-gray); font-size:11px;">${s.tipo}</div></div>
+        </label>`).join("") || '<p class="text-muted">Sin resultados.</p>'}
+      </div>
+    `;
+  }
+
+  buscarEvidencia();
+</script>
+</body>
+</html>

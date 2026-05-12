@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detalle de proyecto · PNUD Guatemala</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets/css/base-minimal.min.css">
+<link rel="stylesheet" href="assets/css/undp-custom.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<div id="contenido"></div>
+
+<div id="siteFooter"></div>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  mountChrome("proyectos");
+
+  const id = qs("id") || "p-001";
+  const p = getProyecto(id) || PROYECTOS[0];
+  const territorios = (p.territorio||[]).map(t=>getTerritorio(t)?.nombre).filter(Boolean).join(" · ");
+  const publicaciones = (p.publicaciones||[]).map(getRecurso).filter(Boolean);
+  const lecciones = (p.lecciones||[]).map(getLeccion).filter(Boolean);
+  const herramientas = (p.herramientas||[]).map(getSolucion).filter(Boolean);
+  const eventos = (p.eventos||[]).map(e => EVENTOS.find(x=>x.id===e)).filter(Boolean);
+
+  const estadoClass = ({"Activo":"tag-green","Cerrado":"tag","Escalado":"tag-blue","En diseño":"tag-yellow","Replicado":"tag-blue"})[p.estado];
+
+  const pic = foto(p.id);
+  document.getElementById("contenido").innerHTML = `
+    <section class="detail-header ${pic?'has-photo':''}" ${pic?`style="background-image:url('${pic}');"`:''}>
+      <div class="container">
+        <div class="breadcrumb" style="color:rgba(255,255,255,0.7); padding:0 0 8px;">
+          <a href="index.html" style="color:rgba(255,255,255,0.7);">Inicio</a>
+          <span class="sep">/</span>
+          <a href="proyectos.html" style="color:rgba(255,255,255,0.7);">Proyectos</a>
+          <span class="sep">/</span> ${p.programa}
+        </div>
+        <div class="eyebrow">${p.programa}</div>
+        <h1>${p.nombre}</h1>
+        <p style="opacity:0.9; max-width:760px; margin:8px 0 0;">${p.resumen}</p>
+        <div class="detail-meta">
+          <span><strong>Estado:</strong> <span class="tag ${estadoClass}">${p.estado}</span></span>
+          <span><strong>Periodo:</strong> ${fmtDate(p.fechaInicio)} → ${fmtDate(p.fechaFin)}</span>
+          <span><strong>Presupuesto:</strong> ${fmtMoney(p.presupuesto)}</span>
+          <span><strong>Donante:</strong> ${p.donante}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="detail-body">
+        <div class="detail-main">
+
+          <div class="tabs">
+            <button class="tab active" data-target="tab-resumen">Resumen</button>
+            <button class="tab" data-target="tab-resultados">Resultados</button>
+            <button class="tab" data-target="tab-productos">Productos (${publicaciones.length})</button>
+            <button class="tab" data-target="tab-lecciones">Lecciones (${lecciones.length})</button>
+            <button class="tab" data-target="tab-herramientas">Herramientas (${herramientas.length})</button>
+            <button class="tab" data-target="tab-eventos">Eventos (${eventos.length})</button>
+            <button class="tab" data-target="tab-galeria">Galería</button>
+          </div>
+
+          <div class="tab-panel active" id="tab-resumen">
+            <h2>Objetivo</h2>
+            <p>${p.objetivo}</p>
+            <h2>Problema que atiende</h2>
+            <p>${p.problema}</p>
+            <h2>Resultados clave esperados</h2>
+            <ul>${p.resultados.map(r=>`<li>${r}</li>`).join("")}</ul>
+            <h2>Alcance territorial</h2>
+            <p>${territorios}</p>
+          </div>
+
+          <div class="tab-panel" id="tab-resultados">
+            <h2>Resultados alcanzados</h2>
+            <div class="kpi-grid">
+              ${p.resultados.map((r,i)=>`<div class="kpi kpi-${["green","yellow","red"][i%3]}"><strong style="display:inline-flex;align-items:center;color:var(--undp-blue);">${icon(["check","dashboard","target"][i%3],{size:28})}</strong><span>${r}</span></div>`).join("")}
+            </div>
+
+            <h2>Indicadores de seguimiento</h2>
+            <table class="table">
+              <thead><tr><th>Indicador</th><th>Línea base</th><th>Avance</th><th>Meta</th></tr></thead>
+              <tbody>
+                <tr><td>Personas beneficiadas directamente</td><td>0</td><td><strong>${(Math.random()*15000+5000).toFixed(0)}</strong></td><td>20,000</td></tr>
+                <tr><td>Municipios cubiertos</td><td>0</td><td><strong>${p.territorio.length*3}</strong></td><td>${p.territorio.length*4}</td></tr>
+                <tr><td>Inversión ejecutada</td><td>0%</td><td><strong>${(Math.random()*40+40).toFixed(0)}%</strong></td><td>100%</td></tr>
+                <tr><td>Productos de conocimiento</td><td>0</td><td><strong>${publicaciones.length}</strong></td><td>${publicaciones.length+3}</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="tab-panel" id="tab-productos">
+            <h2>Productos de conocimiento generados</h2>
+            <p class="text-muted">Publicaciones, guías, datasets y materiales producidos por este proyecto.</p>
+            <div class="cards-grid cols-3">${publicaciones.map(recursoCard).join("") || '<p class="text-muted">Aún no se han publicado productos.</p>'}</div>
+          </div>
+
+          <div class="tab-panel" id="tab-lecciones">
+            <h2>Lecciones aprendidas</h2>
+            <p class="text-muted">Aprendizajes accionables generados durante la implementación.</p>
+            <div class="cards-grid cols-2">${lecciones.map(leccionCard).join("") || '<p class="text-muted">Aún no se han registrado lecciones.</p>'}</div>
+          </div>
+
+          <div class="tab-panel" id="tab-herramientas">
+            <h2>Herramientas y soluciones derivadas</h2>
+            <p class="text-muted">Metodologías y toolkits replicables.</p>
+            <div class="cards-grid cols-2">${herramientas.map(solucionCard).join("") || '<p class="text-muted">No hay herramientas vinculadas.</p>'}</div>
+          </div>
+
+          <div class="tab-panel" id="tab-eventos">
+            <h2>Eventos del proyecto</h2>
+            <table class="table">
+              <thead><tr><th>Fecha</th><th>Evento</th><th>Tipo</th><th>Lugar</th></tr></thead>
+              <tbody>${eventos.map(e=>`<tr><td>${fmtDate(e.fecha)}</td><td>${e.nombre}</td><td><span class="tag tag-blue">${e.tipo}</span></td><td>${e.lugar}</td></tr>`).join("") || '<tr><td colspan="4" class="text-muted">No hay eventos registrados.</td></tr>'}</tbody>
+            </table>
+          </div>
+
+          <div class="tab-panel" id="tab-galeria">
+            <h2>Galería multimedia</h2>
+            <div class="cards-grid cols-3">
+              ${(() => {
+                const base = [pic, ...GALERIA_EXTRA.map(f => PICS_BASE + f)].filter(Boolean);
+                return [1,2,3,4,5,6].map(i => {
+                  const src = base[i % base.length];
+                  return `<div class="card">
+                    <div class="card-media has-photo" style="background-image:url('${src}'); aspect-ratio:4/3;">
+                      <span class="media-tag">Fotografía ${i}</span>
+                    </div>
+                    <div class="card-body">
+                      <div class="card-eyebrow">Actividad de campo</div>
+                      <div class="card-title" style="font-size:14px;">${p.nombre} — registro ${i}</div>
+                    </div>
+                  </div>`;
+                }).join("");
+              })()}
+            </div>
+          </div>
+        </div>
+
+        <aside class="detail-aside">
+          <h4>ODS abordados</h4>
+          <div style="margin-bottom:12px;">${odsBadges(p.ods, 10)}</div>
+
+          <h4>Programa</h4>
+          <div class="value">${p.programa}</div>
+
+          <h4>Territorios</h4>
+          <div class="value">${territorios}</div>
+
+          <h4>Población meta</h4>
+          <div class="value">${(p.poblacion||[]).join(", ")}</div>
+
+          <h4>Instituciones participantes</h4>
+          <div class="value">${(p.instituciones||[]).join(", ")}</div>
+
+          <h4>Socios</h4>
+          <div class="value">${(p.socios||[]).join(", ")}</div>
+
+          <h4>Donante</h4>
+          <div class="value">${p.donante}</div>
+
+          <h4>Presupuesto total</h4>
+          <div class="value"><strong>${fmtMoney(p.presupuesto)}</strong></div>
+
+          <h4>Periodo</h4>
+          <div class="value">${fmtDate(p.fechaInicio)}<br>→ ${fmtDate(p.fechaFin)}</div>
+
+          <h4>Contacto técnico</h4>
+          <div class="value" style="display:flex;align-items:center;gap:6px;">${icon("mail",{size:16,color:"var(--undp-dark-gray)"})} <a href="mailto:${p.contacto}">${p.contacto}</a></div>
+
+          <div class="divider"></div>
+          <a href="explorador.html?proyecto=${p.id}" class="btn btn-primary btn-block">Explorar evidencia ${icon("arrowRight",{size:16})}</a>
+          <a href="briefs.html?proyecto=${p.id}" class="btn btn-secondary btn-block mt-1">${icon("pencil",{size:16})} Generar brief</a>
+        </aside>
+      </div>
+    </section>
+  `;
+
+  activateTabs();
+</script>
+</body>
+</html>

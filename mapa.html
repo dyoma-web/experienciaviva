@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapa de Conocimiento · PNUD Guatemala</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets/css/base-minimal.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="assets/css/undp-custom.css">
+<style>
+  .leaflet-popup-content { margin: 12px; min-width: 220px; }
+  .map-info-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--undp-light-gray);
+    font-size: 13px;
+  }
+  .map-info-item strong { display:block; font-size: 11px; text-transform: uppercase; letter-spacing:1px; color: var(--undp-dark-gray); margin-bottom: 2px; }
+</style>
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<section class="detail-header" style="padding: 32px 0;">
+  <div class="container">
+    <div class="breadcrumb" style="color:rgba(255,255,255,0.7); padding:0 0 8px;">
+      <a href="index.html" style="color:rgba(255,255,255,0.7);">Inicio</a>
+      <span class="sep">/</span> Mapa de conocimiento
+    </div>
+    <div class="eyebrow">Visualización territorial</div>
+    <h1 style="font-size: 1.8rem; margin: 8px 0 0;">Mapa de proyectos, socios y resultados</h1>
+  </div>
+</section>
+
+<div class="map-layout">
+
+  <!-- FILTROS -->
+  <aside class="map-filters">
+    <h3 style="margin:0 0 12px; font-size:15px;">Capas del mapa</h3>
+
+    <div class="filter-group">
+      <h4>Mostrar</h4>
+      <label class="filter-option"><input type="checkbox" id="capaProyectos" checked> Proyectos <span class="count" id="cntProy">10</span></label>
+      <label class="filter-option"><input type="checkbox" id="capaRecursos" checked> Recursos por territorio</label>
+      <label class="filter-option"><input type="checkbox" id="capaLecciones"> Lecciones aprendidas</label>
+    </div>
+
+    <div class="filter-group">
+      <h4>Filtrar por ODS</h4>
+      <select id="fMapOds" style="width:100%; padding:8px;">
+        <option value="">Todos los ODS</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <h4>Filtrar por programa</h4>
+      <select id="fMapProg" style="width:100%; padding:8px;">
+        <option value="">Todos los programas</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <h4>Filtrar por estado</h4>
+      <label class="filter-option"><input type="checkbox" value="Activo" checked> Activo</label>
+      <label class="filter-option"><input type="checkbox" value="Escalado" checked> Escalado</label>
+      <label class="filter-option"><input type="checkbox" value="Cerrado" checked> Cerrado</label>
+      <label class="filter-option"><input type="checkbox" value="En diseño" checked> En diseño</label>
+    </div>
+
+    <button class="btn btn-primary btn-block" onclick="renderMap()">Aplicar</button>
+    <div class="divider"></div>
+    <p style="font-size:12px; color:var(--undp-dark-gray);">Haga clic en un marcador territorial para ver el panel de información.</p>
+  </aside>
+
+  <!-- MAPA -->
+  <div id="mapa" style="border:none; height:100%;"></div>
+
+  <!-- PANEL DE INFORMACIÓN -->
+  <aside class="map-info" id="mapInfo">
+    <h3>Información territorial</h3>
+    <p class="text-muted text-small">Seleccione un territorio en el mapa para ver detalle.</p>
+    <div class="divider"></div>
+    <h4 style="font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--undp-dark-gray);">Cobertura nacional</h4>
+    <div class="map-info-item"><strong>Proyectos activos</strong>6 de 10 totales</div>
+    <div class="map-info-item"><strong>Departamentos cubiertos</strong>10 de 22</div>
+    <div class="map-info-item"><strong>Inversión total movilizada</strong>USD 41.9 millones</div>
+    <div class="map-info-item"><strong>Población beneficiaria estimada</strong>~ 245,000 personas</div>
+    <div class="map-info-item"><strong>Socios institucionales</strong>14 organizaciones</div>
+  </aside>
+
+</div>
+
+<div id="siteFooter"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  mountChrome("mapa");
+
+  // Llenar selects
+  document.getElementById("fMapOds").innerHTML += Object.entries(ODS_NOMBRES).map(([k,v])=>`<option value="${k}">ODS ${k}: ${v}</option>`).join("");
+  const progs = [...new Set(PROYECTOS.map(p=>p.programa))].sort();
+  document.getElementById("fMapProg").innerHTML += progs.map(p=>`<option value="${p}">${p}</option>`).join("");
+
+  // Inicializa mapa centrado en Guatemala
+  const map = L.map('mapa').setView([15.5, -90.2], 7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '© OpenStreetMap · PNUD Guatemala'
+  }).addTo(map);
+
+  let markersLayer = L.layerGroup().addTo(map);
+
+  function renderMap() {
+    markersLayer.clearLayers();
+    const odsF = document.getElementById("fMapOds").value;
+    const progF = document.getElementById("fMapProg").value;
+    const estados = Array.from(document.querySelectorAll(".filter-group input[type=checkbox]")).filter(i => ["Activo","Escalado","Cerrado","En diseño"].includes(i.value) && i.checked).map(i => i.value);
+
+    TERRITORIOS.filter(t=>t.nivel==="departamento").forEach(terr => {
+      const proyectos = PROYECTOS.filter(p =>
+        p.territorio.includes(terr.id) &&
+        (!odsF || p.ods.includes(+odsF)) &&
+        (!progF || p.programa === progF) &&
+        estados.includes(p.estado)
+      );
+      const recursos = RECURSOS.filter(r => r.territorio.includes(terr.id));
+      const lecciones = LECCIONES.filter(l => (l.territorio||[]).includes(terr.id));
+
+      if (!proyectos.length && !recursos.length) return;
+
+      const size = Math.min(14 + proyectos.length * 4, 40);
+      const color = proyectos.length >= 3 ? "#EE402D" : proyectos.length >= 2 ? "#FFEB00" : "#006EB5";
+      const textColor = proyectos.length >= 2 ? "#000" : "#fff";
+
+      const marker = L.marker([terr.lat, terr.lng], {
+        icon: L.divIcon({
+          className: 'pnud-marker',
+          html: `<div style="background:${color}; color:${textColor}; width:${size}px; height:${size}px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; border:3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">${proyectos.length}</div>`,
+          iconSize: [size,size]
+        })
+      });
+
+      const odsHTML = [...new Set(proyectos.flatMap(p=>p.ods))].slice(0,6).map(o => `<span class="ods-badge ods-${o}">${o}</span>`).join("");
+
+      marker.bindPopup(`
+        <div class="map-popup">
+          <div class="map-popup-title">${terr.nombre}</div>
+          <p><strong>${proyectos.length}</strong> proyecto(s) · <strong>${recursos.length}</strong> recurso(s)</p>
+          <p>${odsHTML}</p>
+          <p style="margin-top:8px;"><a href="#" onclick="showTerritorio('${terr.id}'); return false;">Ver panel completo</a></p>
+        </div>
+      `);
+      markersLayer.addLayer(marker);
+    });
+  }
+
+  function showTerritorio(id) {
+    const terr = getTerritorio(id);
+    const proyectos = PROYECTOS.filter(p => p.territorio.includes(id));
+    const recursos = RECURSOS.filter(r => r.territorio.includes(id));
+    const lecciones = LECCIONES.filter(l => (l.territorio||[]).includes(id));
+    const socios = [...new Set(proyectos.flatMap(p=>p.socios))];
+    const ods = [...new Set(proyectos.flatMap(p=>p.ods))];
+    const pobl = [...new Set(proyectos.flatMap(p=>p.poblacion))];
+    const inversion = proyectos.reduce((s,p)=>s+(p.presupuesto||0),0);
+
+    document.getElementById("mapInfo").innerHTML = `
+      <h3>${terr.nombre}</h3>
+      <p class="text-muted text-small">Panel territorial de conocimiento</p>
+      <div class="map-info-item"><strong>Proyectos</strong>${proyectos.length}</div>
+      <div class="map-info-item"><strong>Recursos asociados</strong>${recursos.length}</div>
+      <div class="map-info-item"><strong>Lecciones aprendidas</strong>${lecciones.length}</div>
+      <div class="map-info-item"><strong>Inversión total</strong>${fmtMoney(inversion)}</div>
+      <div class="map-info-item"><strong>Socios activos</strong>${socios.join(", ")}</div>
+      <div class="map-info-item"><strong>ODS trabajados</strong>${ods.map(o=>`<span class="ods-badge ods-${o}">${o}</span>`).join("")}</div>
+      <div class="map-info-item"><strong>Poblaciones</strong>${pobl.join(", ")}</div>
+
+      <div class="divider"></div>
+      <h4 style="font-size:13px; text-transform:uppercase; letter-spacing:1px;">Proyectos en el territorio</h4>
+      ${proyectos.slice(0,4).map(p=>`<div style="padding:8px 0; border-bottom:1px solid var(--undp-light-gray);">
+        <a href="proyecto.html?id=${p.id}" style="font-weight:600; font-size:13px;">${p.nombre}</a>
+        <div style="font-size:11px; color:var(--undp-dark-gray); margin-top:2px;">${p.estado} · ${p.programa}</div>
+      </div>`).join("")}
+
+      <div class="mt-2">
+        <a href="explorador.html?q=${encodeURIComponent(terr.nombre)}" class="btn btn-sm btn-primary btn-block">${icon("case",{size:14})} Construir dossier de ${terr.nombre}</a>
+      </div>
+    `;
+  }
+
+  renderMap();
+</script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboards · PNUD Guatemala</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets/css/base-minimal.min.css">
+<link rel="stylesheet" href="assets/css/undp-custom.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<section class="detail-header">
+  <div class="container">
+    <div class="breadcrumb" style="color:rgba(255,255,255,0.7); padding:0 0 8px;">
+      <a href="index.html" style="color:rgba(255,255,255,0.7);">Inicio</a>
+      <span class="sep">/</span> Dashboards
+    </div>
+    <div class="eyebrow">Dashboards de conocimiento e impacto</div>
+    <h1>Lectura visual del portafolio nacional</h1>
+    <p style="opacity:0.9; max-width:760px; margin:8px 0 0;">
+      Tableros con métricas de cobertura, impacto, contenido y uso de la plataforma.
+      Datos refrescados trimestralmente desde el sistema editorial.
+    </p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+
+    <!-- KPIs principales -->
+    <div class="kpi-grid">
+      <div class="kpi"><strong>847</strong><span>Recursos publicados</span></div>
+      <div class="kpi kpi-green"><strong>92%</strong><span>Metadatos completos</span></div>
+      <div class="kpi kpi-yellow"><strong>184</strong><span>Lecciones registradas</span></div>
+      <div class="kpi"><strong>62</strong><span>Proyectos en portafolio</span></div>
+      <div class="kpi kpi-red"><strong>23,847</strong><span>Descargas (último trim.)</span></div>
+      <div class="kpi kpi-green"><strong>4,231</strong><span>Usuarios registrados</span></div>
+    </div>
+
+    <!-- Filtros globales -->
+    <div style="background: var(--undp-lighter); padding: 16px 24px; margin-bottom: 24px; display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+      <strong style="font-size:13px;">Filtros globales:</strong>
+      <select><option>Año: 2024-2025</option><option>2024</option><option>2023</option></select>
+      <select><option>Programa: Todos</option></select>
+      <select><option>Territorio: Nacional</option></select>
+      <button class="btn btn-sm btn-secondary">Aplicar</button>
+      <button class="btn btn-sm" id="btnExport"></button>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="dash-grid">
+      <div class="dash-card">
+        <h3>Proyectos por ODS</h3>
+        <canvas id="chartOds"></canvas>
+      </div>
+      <div class="dash-card">
+        <h3>Proyectos por territorio</h3>
+        <canvas id="chartTerr"></canvas>
+      </div>
+      <div class="dash-card">
+        <h3>Recursos por año</h3>
+        <canvas id="chartAnio"></canvas>
+      </div>
+      <div class="dash-card">
+        <h3>Recursos por tipo</h3>
+        <canvas id="chartTipo"></canvas>
+      </div>
+      <div class="dash-card">
+        <h3>Distribución presupuestaria por programa (USD)</h3>
+        <canvas id="chartPresup"></canvas>
+      </div>
+      <div class="dash-card">
+        <h3>Estado de proyectos</h3>
+        <canvas id="chartEstado"></canvas>
+      </div>
+      <div class="dash-card">
+        <h3>Población objetivo (proyectos)</h3>
+        <canvas id="chartPob"></canvas>
+      </div>
+      <div class="dash-card">
+        <h3>Donantes más frecuentes</h3>
+        <canvas id="chartDon"></canvas>
+      </div>
+    </div>
+
+    <h2 class="mt-3" style="font-size:20px; border-bottom:2px solid var(--undp-blue); display:inline-block; padding-bottom:4px;">Indicadores de uso de la plataforma</h2>
+    <div class="dash-grid mt-2">
+      <div class="dash-card">
+        <h3>Búsquedas mensuales</h3>
+        <canvas id="chartBusq"></canvas>
+      </div>
+      <div class="dash-card">
+        <h3>Top 10 recursos más descargados</h3>
+        <canvas id="chartTop"></canvas>
+      </div>
+    </div>
+
+    <h2 class="mt-3" style="font-size:20px; border-bottom:2px solid var(--undp-blue); display:inline-block; padding-bottom:4px;">Recursos más consultados</h2>
+    <table class="table mt-2">
+      <thead><tr><th>#</th><th>Recurso</th><th>Tipo</th><th>Descargas</th><th>Año</th></tr></thead>
+      <tbody id="topRecursos"></tbody>
+    </table>
+
+  </div>
+</section>
+
+<div id="siteFooter"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  mountChrome("dashboards");
+  document.getElementById("btnExport").innerHTML = icon("download",{size:14}) + " Exportar dashboard";
+
+  const colors = ["#006EB5","#FFEB00","#3F7E44","#FF3A21","#A21942","#56C02B","#DD1367","#00689D","#FD9D24","#BF8B2E","#26BDE2","#FCC30B","#C5192D","#0A97D9","#19486A","#FD6925","#E5243B"];
+
+  function counts(arr, keyFn) {
+    const m = {};
+    arr.forEach(item => {
+      const keys = keyFn(item);
+      (Array.isArray(keys) ? keys : [keys]).forEach(k => m[k] = (m[k]||0)+1);
+    });
+    return m;
+  }
+
+  // 1. Proyectos por ODS
+  const odsCount = counts(PROYECTOS, p=>p.ods);
+  const odsLabels = Object.keys(odsCount).sort((a,b)=>a-b);
+  new Chart(document.getElementById("chartOds"), {
+    type:"bar",
+    data:{labels:odsLabels.map(k=>"ODS "+k), datasets:[{data:odsLabels.map(k=>odsCount[k]), backgroundColor: odsLabels.map(k=>colors[(+k-1)%colors.length])}]},
+    options:{plugins:{legend:{display:false}},responsive:true, scales:{y:{beginAtZero:true}}}
+  });
+
+  // 2. Proyectos por territorio
+  const terrCount = counts(PROYECTOS, p=>p.territorio);
+  const terrLabels = Object.keys(terrCount).map(k=>getTerritorio(k)?.nombre||k);
+  new Chart(document.getElementById("chartTerr"), {
+    type:"bar",
+    data:{labels:terrLabels, datasets:[{data:Object.values(terrCount), backgroundColor:"#006EB5"}]},
+    options:{indexAxis:"y", plugins:{legend:{display:false}}, responsive:true}
+  });
+
+  // 3. Recursos por año
+  const anioCount = counts(RECURSOS, r=>r.anio);
+  const anios = Object.keys(anioCount).sort();
+  new Chart(document.getElementById("chartAnio"), {
+    type:"line",
+    data:{labels:anios, datasets:[{label:"Recursos", data:anios.map(k=>anioCount[k]), borderColor:"#006EB5", backgroundColor:"rgba(0,110,181,0.15)", fill:true, tension:0.35}]},
+    options:{plugins:{legend:{display:false}}, responsive:true}
+  });
+
+  // 4. Recursos por tipo
+  const tipoCount = counts(RECURSOS, r=>r.tipo);
+  new Chart(document.getElementById("chartTipo"), {
+    type:"doughnut",
+    data:{labels:Object.keys(tipoCount), datasets:[{data:Object.values(tipoCount), backgroundColor: colors}]},
+    options:{responsive:true, plugins:{legend:{position:"right"}}}
+  });
+
+  // 5. Presupuesto por programa
+  const presupProg = {};
+  PROYECTOS.forEach(p => presupProg[p.programa] = (presupProg[p.programa]||0)+p.presupuesto);
+  new Chart(document.getElementById("chartPresup"), {
+    type:"bar",
+    data:{labels:Object.keys(presupProg), datasets:[{data:Object.values(presupProg).map(v=>v/1000000), backgroundColor:"#006EB5"}]},
+    options:{indexAxis:"y", plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>"USD "+ctx.parsed.x.toFixed(2)+"M"}}}, responsive:true}
+  });
+
+  // 6. Estado proyectos
+  const estCount = counts(PROYECTOS, p=>p.estado);
+  new Chart(document.getElementById("chartEstado"), {
+    type:"pie",
+    data:{labels:Object.keys(estCount), datasets:[{data:Object.values(estCount), backgroundColor:["#3F7E44","#FFEB00","#006EB5","#A9B1B7","#FD6925"]}]},
+    options:{responsive:true, plugins:{legend:{position:"right"}}}
+  });
+
+  // 7. Población
+  const pobCount = counts(PROYECTOS, p=>p.poblacion);
+  new Chart(document.getElementById("chartPob"), {
+    type:"bar",
+    data:{labels:Object.keys(pobCount), datasets:[{data:Object.values(pobCount), backgroundColor:"#FFEB00", borderColor:"#FFEB00"}]},
+    options:{plugins:{legend:{display:false}}, responsive:true}
+  });
+
+  // 8. Donantes
+  const donCount = counts(PROYECTOS, p=>p.donante);
+  new Chart(document.getElementById("chartDon"), {
+    type:"bar",
+    data:{labels:Object.keys(donCount), datasets:[{data:Object.values(donCount), backgroundColor:"#0A97D9"}]},
+    options:{indexAxis:"y", plugins:{legend:{display:false}}, responsive:true}
+  });
+
+  // 9. Búsquedas mensuales
+  const meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+  new Chart(document.getElementById("chartBusq"), {
+    type:"line",
+    data:{labels:meses, datasets:[
+      {label:"Búsquedas", data:[1240,1380,1520,1690,1820,1940,2120,2380,2640,2890,3120,3340], borderColor:"#006EB5", backgroundColor:"rgba(0,110,181,0.1)", fill:true},
+      {label:"Descargas", data:[820,910,1020,1180,1290,1410,1580,1720,1890,2090,2280,2410], borderColor:"#FFEB00", backgroundColor:"rgba(255,235,0,0.15)", fill:true}
+    ]},
+    options:{responsive:true}
+  });
+
+  // 10. Top 10
+  const topRanking = [...RECURSOS].sort((a,b)=>b.descargas-a.descargas).slice(0,10);
+  new Chart(document.getElementById("chartTop"), {
+    type:"bar",
+    data:{labels:topRanking.map(r=>r.titulo.substring(0,38)+"..."), datasets:[{data:topRanking.map(r=>r.descargas), backgroundColor:"#006EB5"}]},
+    options:{indexAxis:"y", plugins:{legend:{display:false}}, responsive:true}
+  });
+
+  document.getElementById("topRecursos").innerHTML = topRanking.map((r,i)=>
+    `<tr><td><strong>${i+1}</strong></td><td><a href="recurso.html?id=${r.id}">${r.titulo}</a></td><td>${r.tipo}</td><td>${r.descargas.toLocaleString("es-GT")}</td><td>${r.anio}</td></tr>`
+  ).join("");
+</script>
+</body>
+</html>

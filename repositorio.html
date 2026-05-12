@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repositorio · Plataforma de Conocimiento Aplicado PNUD</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets/css/base-minimal.min.css">
+<link rel="stylesheet" href="assets/css/undp-custom.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<section class="detail-header">
+  <div class="container">
+    <div class="breadcrumb" style="color:rgba(255,255,255,0.7); padding:0 0 8px;">
+      <a href="index.html" style="color:rgba(255,255,255,0.7);">Inicio</a>
+      <span class="sep">/</span> Repositorio
+    </div>
+    <div class="eyebrow">Repositorio estructurado</div>
+    <h1>Publicaciones, datasets, guías y herramientas</h1>
+    <p style="opacity:0.9; max-width:760px; margin:8px 0 0;">
+      Más de 800 recursos curados con metadatos completos, vinculados a proyectos, ODS, territorios y poblaciones.
+      Cada recurso pasa por revisión editorial humana antes de publicarse.
+    </p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="layout-with-sidebar">
+
+      <!-- FILTROS -->
+      <aside class="sidebar-filters">
+        <h3 style="margin:0 0 16px; font-size:16px;">Filtrar resultados</h3>
+
+        <div class="filter-group">
+          <h4>Tipo de recurso</h4>
+          <div class="filter-options" id="filterTipo"></div>
+        </div>
+
+        <div class="filter-group">
+          <h4>ODS</h4>
+          <div class="filter-options" id="filterOds"></div>
+        </div>
+
+        <div class="filter-group">
+          <h4>Territorio</h4>
+          <div class="filter-options" id="filterTerritorio"></div>
+        </div>
+
+        <div class="filter-group">
+          <h4>Año</h4>
+          <div class="filter-options" id="filterAnio"></div>
+        </div>
+
+        <div class="filter-group">
+          <h4>Nivel de utilidad</h4>
+          <div class="filter-options" id="filterUtilidad"></div>
+        </div>
+
+        <div class="filter-group">
+          <h4>Idioma</h4>
+          <div class="filter-options">
+            <label class="filter-option"><input type="checkbox" checked> Español <span class="count">847</span></label>
+            <label class="filter-option"><input type="checkbox"> Inglés <span class="count">126</span></label>
+            <label class="filter-option"><input type="checkbox"> K'iche' <span class="count">12</span></label>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary btn-block" onclick="aplicarFiltros()">Aplicar filtros</button>
+      </aside>
+
+      <!-- LISTADO -->
+      <div>
+        <div class="list-toolbar">
+          <div><strong id="resultCount">12</strong> recursos encontrados</div>
+          <div>
+            <label>Ordenar:
+              <select id="sortBy">
+                <option value="relevancia">Relevancia</option>
+                <option value="anio">Año (más reciente)</option>
+                <option value="descargas">Más descargados</option>
+                <option value="titulo">Título A-Z</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="cards-grid cols-3" id="listadoRecursos"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="siteFooter"></div>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  mountChrome("repositorio");
+
+  // Construye facetas dinámicamente
+  function facets() {
+    const tipos = {}, ods = {}, territorios = {}, anios = {}, util = {};
+    RECURSOS.forEach(r => {
+      tipos[r.tipo] = (tipos[r.tipo]||0)+1;
+      (r.ods||[]).forEach(o => ods[o] = (ods[o]||0)+1);
+      (r.territorio||[]).forEach(t => territorios[t] = (territorios[t]||0)+1);
+      anios[r.anio] = (anios[r.anio]||0)+1;
+      util[r.nivel_utilidad] = (util[r.nivel_utilidad]||0)+1;
+    });
+    return { tipos, ods, territorios, anios, util };
+  }
+
+  function checkboxList(map, fmt = (k=>k)) {
+    return Object.entries(map).sort().map(([k,v]) =>
+      `<label class="filter-option"><input type="checkbox" value="${k}"> ${fmt(k)} <span class="count">${v}</span></label>`
+    ).join("");
+  }
+
+  const f = facets();
+  document.getElementById("filterTipo").innerHTML = checkboxList(f.tipos);
+  document.getElementById("filterOds").innerHTML = Object.entries(f.ods).sort((a,b)=>a[0]-b[0]).map(([k,v])=>
+    `<label class="filter-option"><input type="checkbox" value="${k}"> <span class="ods-badge ods-${k}">${k}</span> ${ODS_NOMBRES[k]} <span class="count">${v}</span></label>`
+  ).join("");
+  document.getElementById("filterTerritorio").innerHTML = checkboxList(f.territorios, k => getTerritorio(k)?.nombre || k);
+  document.getElementById("filterAnio").innerHTML = checkboxList(f.anios);
+  document.getElementById("filterUtilidad").innerHTML = checkboxList(f.util);
+
+  function render(lista) {
+    document.getElementById("resultCount").textContent = lista.length;
+    document.getElementById("listadoRecursos").innerHTML = lista.map(recursoCard).join("");
+  }
+  render(RECURSOS);
+
+  function aplicarFiltros() {
+    const checked = sel => Array.from(document.querySelectorAll(`#${sel} input:checked`)).map(i => i.value);
+    const tipos = checked("filterTipo");
+    const ods = checked("filterOds").map(Number);
+    const terr = checked("filterTerritorio");
+    const anios = checked("filterAnio").map(Number);
+    const util = checked("filterUtilidad");
+
+    const filt = RECURSOS.filter(r =>
+      (!tipos.length || tipos.includes(r.tipo)) &&
+      (!ods.length || ods.some(o => r.ods.includes(o))) &&
+      (!terr.length || terr.some(t => r.territorio.includes(t))) &&
+      (!anios.length || anios.includes(r.anio)) &&
+      (!util.length || util.includes(r.nivel_utilidad))
+    );
+    render(filt);
+  }
+
+  document.getElementById("sortBy").addEventListener("change", e => {
+    const v = e.target.value;
+    let arr = [...RECURSOS];
+    if (v === "anio") arr.sort((a,b)=>b.anio-a.anio);
+    if (v === "descargas") arr.sort((a,b)=>b.descargas-a.descargas);
+    if (v === "titulo") arr.sort((a,b)=>a.titulo.localeCompare(b.titulo));
+    render(arr);
+  });
+</script>
+</body>
+</html>

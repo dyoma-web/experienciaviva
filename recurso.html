@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detalle de recurso · PNUD Guatemala</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets/css/base-minimal.min.css">
+<link rel="stylesheet" href="assets/css/undp-custom.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<div id="contenido"></div>
+
+<div id="siteFooter"></div>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  mountChrome("repositorio");
+
+  const id = qs("id") || "r-001";
+  const r = getRecurso(id) || RECURSOS[0];
+  const proyecto = getProyecto(r.proyecto);
+  const relacionados = RECURSOS.filter(x => x.id !== r.id && x.programa === r.programa).slice(0, 3);
+  const territorios = (r.territorio || []).map(t => getTerritorio(t)?.nombre).filter(Boolean).join(" · ");
+
+  const pic = foto(r.id);
+  document.getElementById("contenido").innerHTML = `
+    <section class="detail-header ${pic?'has-photo':''}" ${pic?`style="background-image:url('${pic}');"`:''}>
+      <div class="container">
+        <div class="breadcrumb" style="color:rgba(255,255,255,0.7); padding:0 0 8px;">
+          <a href="index.html" style="color:rgba(255,255,255,0.7);">Inicio</a>
+          <span class="sep">/</span>
+          <a href="repositorio.html" style="color:rgba(255,255,255,0.7);">Repositorio</a>
+          <span class="sep">/</span> ${r.tipo}
+        </div>
+        <div class="eyebrow">${r.tipo} · ${r.anio} · ${r.idioma}</div>
+        <h1>${r.titulo}</h1>
+        <p style="opacity:0.9; max-width:760px; margin:8px 0 0;">${r.descripcion}</p>
+        <div class="detail-meta">
+          <span><strong>Programa:</strong> ${r.programa}</span>
+          <span><strong>Autor:</strong> ${r.autor}</span>
+          <span><strong>Descargas:</strong> ${r.descargas.toLocaleString("es-GT")}</span>
+          <span><strong>Nivel de utilidad:</strong> ${r.nivel_utilidad}</span>
+        </div>
+        <div style="margin-top:24px;">
+          <a href="#" class="btn btn-primary">${icon("download",{size:16})} Descargar (${r.archivo})</a>
+          <a href="#" class="btn" style="background:transparent; color:white; border-color:white;">${icon("attach",{size:16})} Citar este recurso</a>
+          <a href="explorador.html?q=${encodeURIComponent(r.titulo)}" class="btn" style="background:transparent; color:white; border-color:white;">${icon("search",{size:16})} Buscar relacionados</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="detail-body">
+        <div class="detail-main">
+          <h2>Resumen</h2>
+          <p>${r.descripcion}</p>
+          <p>Este recurso forma parte del programa <strong>${r.programa}</strong> y se vincula al proyecto
+          <a href="proyecto.html?id=${proyecto?.id}">${proyecto?.nombre || ""}</a>, que aborda
+          ${proyecto?.problema || ""}</p>
+
+          <h2>Contenidos principales</h2>
+          <ul>
+            <li>Diagnóstico y línea base del problema abordado</li>
+            <li>Marco conceptual y metodológico</li>
+            <li>Resultados clave del trabajo de campo</li>
+            <li>Recomendaciones de política pública e implementación</li>
+            <li>Anexos: instrumentos, tablas de datos, casos territoriales</li>
+          </ul>
+
+          <h2>Cómo usar este recurso</h2>
+          <p>Este recurso ha sido clasificado con nivel de utilidad <strong>${r.nivel_utilidad}</strong>, lo cual significa que es adecuado principalmente para:</p>
+          <ul>
+            <li>${r.nivel_utilidad === "Política pública" ? "Apoyar el diseño de instrumentos normativos y planes sectoriales" : ""}
+            ${r.nivel_utilidad === "Implementación" ? "Equipos operativos que aplican metodologías en territorio" : ""}
+            ${r.nivel_utilidad === "Investigación" ? "Investigadores, academia y centros de pensamiento" : ""}
+            ${r.nivel_utilidad === "Comunicación" ? "Divulgación amplia y posicionamiento mediático" : ""}
+            ${r.nivel_utilidad === "Formación" ? "Programas formativos y rutas de aprendizaje" : ""}</li>
+          </ul>
+
+          <h2>Recursos relacionados</h2>
+          <div class="cards-grid cols-3">
+            ${relacionados.map(recursoCard).join("")}
+          </div>
+
+          <h2>Citación sugerida</h2>
+          <p style="background: var(--undp-lighter); padding: 16px; font-style: italic; border-left: 4px solid var(--undp-blue);">
+            ${r.autor}. (${r.anio}). <em>${r.titulo}</em>. Programa de las Naciones Unidas para el Desarrollo (PNUD) Guatemala. Recuperado de plataforma.pnud.org.gt/recurso/${r.id}
+          </p>
+        </div>
+
+        <aside class="detail-aside">
+          <h4>ODS abordados</h4>
+          <div style="margin-bottom:12px;">${odsBadges(r.ods, 10)}</div>
+
+          <h4>Territorios</h4>
+          <div class="value">${territorios}</div>
+
+          <h4>Población objetivo</h4>
+          <div class="value">${(r.poblacion||[]).join(", ")}</div>
+
+          <h4>Instituciones participantes</h4>
+          <div class="value">${(r.instituciones||[]).join(", ")}</div>
+
+          <h4>Socios</h4>
+          <div class="value">${(r.socios||[]).join(", ")}</div>
+
+          <h4>Palabras clave</h4>
+          <div class="value">${tagsHTML(r.keywords)}</div>
+
+          <h4>Idioma</h4>
+          <div class="value">${r.idioma}</div>
+
+          <h4>Año</h4>
+          <div class="value">${r.anio}</div>
+
+          <h4>Proyecto vinculado</h4>
+          <div class="value"><a href="proyecto.html?id=${proyecto?.id}">${proyecto?.nombre || "—"}</a></div>
+
+          <h4>Estado editorial</h4>
+          <div class="value">
+            <span class="tag tag-green" style="display:inline-flex; align-items:center; gap:4px;">${icon("check",{size:12})} Validado</span>
+            <div style="font-size:11px; color:var(--undp-dark-gray); margin-top:6px;">
+              Revisado por: Editor temático · Revisor técnico · Editor general<br>
+              Última actualización: ${r.anio}-03-15
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  `;
+</script>
+</body>
+</html>

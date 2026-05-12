@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rutas de Aprendizaje · PNUD Guatemala</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets/css/base-minimal.min.css">
+<link rel="stylesheet" href="assets/css/undp-custom.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<section class="detail-header">
+  <div class="container">
+    <div class="breadcrumb" style="color:rgba(255,255,255,0.7); padding:0 0 8px;">
+      <a href="index.html" style="color:rgba(255,255,255,0.7);">Inicio</a>
+      <span class="sep">/</span> Rutas de aprendizaje
+    </div>
+    <div class="eyebrow">Aprendizaje aplicado</div>
+    <h1>Itinerarios formativos conectados al repositorio</h1>
+    <p style="opacity:0.9; max-width:760px; margin:8px 0 0;">
+      Cada ruta articula cursos, lecturas, videos y casos curados por equipos temáticos. Al completarlas,
+      obtenga constancia formal y acceso a la comunidad de práctica correspondiente. Integración prevista
+      con Moodle para Fase 2.
+    </p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="kpi-grid">
+      <div class="kpi"><strong>6</strong><span>Rutas activas</span></div>
+      <div class="kpi kpi-green"><strong id="kInscritos">1,579</strong><span>Personas inscritas</span></div>
+      <div class="kpi kpi-yellow"><strong>23</strong><span>Cursos disponibles</span></div>
+      <div class="kpi"><strong>684</strong><span>Constancias emitidas</span></div>
+    </div>
+
+    <div id="rutaDetalle"></div>
+
+    <div id="listadoRutas">
+      <h2 class="mt-3" style="font-size:24px; border-bottom: 2px solid var(--undp-blue); display:inline-block; padding-bottom:4px;">Catálogo de rutas formativas</h2>
+      <div class="cards-grid cols-3 mt-2" id="rutas"></div>
+    </div>
+  </div>
+</section>
+
+<div id="siteFooter"></div>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  mountChrome("aprendizaje");
+
+  const id = qs("id");
+  if (id) {
+    const r = getRuta(id);
+    if (r) {
+      const docs = (r.documentos||[]).map(getRecurso).filter(Boolean);
+      const tools = (r.herramientas||[]).map(getSolucion).filter(Boolean);
+      const pic = foto(r.id);
+      document.getElementById("listadoRutas").style.display = "none";
+      document.getElementById("rutaDetalle").innerHTML = `
+        <div style="background: ${pic?`linear-gradient(135deg, rgba(0,33,55,0.85), rgba(4,104,177,0.75)), url('${pic}') center/cover no-repeat`:`linear-gradient(135deg, var(--undp-blue-dark), var(--undp-blue))`}; color:white; padding: 40px; margin-bottom: 32px;">
+          <div style="display:flex; gap:32px; align-items:center; flex-wrap:wrap;">
+            <div style="background:var(--ods-${r.color}); width:120px; height:120px; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:18px; text-align:center; padding:12px;">ODS ${r.ods.join(", ")}</div>
+            <div style="flex:1;">
+              <div style="text-transform:uppercase; letter-spacing:2px; font-size:12px; color:var(--undp-yellow); margin-bottom:8px;">Ruta formativa</div>
+              <h1 style="margin:0 0 12px;">${r.titulo}</h1>
+              <p style="margin:0; opacity:0.92;">${r.descripcion}</p>
+              <div style="margin-top:16px; display:flex; gap:24px; flex-wrap:wrap; font-size:13px;">
+                <span><strong style="color:var(--undp-yellow);">${r.duracion}</strong> de formación</span>
+                <span><strong style="color:var(--undp-yellow);">${r.inscritos}</strong> personas inscritas</span>
+                <span><strong style="color:var(--undp-yellow);">${r.cursos}</strong> cursos · <strong style="color:var(--undp-yellow);">${r.lecturas}</strong> lecturas · <strong style="color:var(--undp-yellow);">${r.videos}</strong> videos</span>
+              </div>
+            </div>
+            <div>
+              <a href="#" class="btn" style="background:var(--undp-yellow); color:var(--undp-black); border:none;">Inscribirme en la ruta</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="layout-with-sidebar">
+          <aside class="sidebar-filters">
+            <h3 style="margin:0 0 16px; font-size:15px;">Progreso de la ruta</h3>
+            <div style="background:white; padding:12px; margin-bottom:12px;">
+              <div style="height:6px; background:var(--undp-light-gray); margin-bottom:8px;">
+                <div style="height:6px; background:var(--undp-blue); width:0%;"></div>
+              </div>
+              <div style="font-size:12px; color:var(--undp-dark-gray);">0% completado · Inscríbase para comenzar</div>
+            </div>
+
+            <h4 style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--undp-dark-gray); margin-top:24px;">Público objetivo</h4>
+            <p style="font-size:13px;">${r.publico}</p>
+
+            <h4 style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--undp-dark-gray); margin-top:16px;">Constancia</h4>
+            <p style="font-size:13px;">Constancia digital firmada por PNUD Guatemala al completar el 80% de la ruta.</p>
+
+            <h4 style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--undp-dark-gray); margin-top:16px;">Comunidad vinculada</h4>
+            <p style="font-size:13px;"><a href="comunidades.html">Comunidad de práctica activa</a></p>
+          </aside>
+
+          <div>
+            <h2 class="h2-icon">${icon("target")} Objetivos de aprendizaje</h2>
+            <ul>${r.objetivos.map(o=>`<li>${o}</li>`).join("")}</ul>
+
+            <h2 class="h2-icon">${icon("book")} Estructura de la ruta</h2>
+            <ol style="padding-left:0; list-style:none;">
+              ${[
+                ...Array(r.cursos).fill({tipo:"Curso",ic:"learning"}),
+                ...Array(r.lecturas).fill({tipo:"Lectura",ic:"book"}),
+                ...Array(r.videos).fill({tipo:"Video",ic:"video"}),
+                ...Array(r.casos).fill({tipo:"Caso de estudio",ic:"document"})
+              ].slice(0,8).map((item,i)=>`
+                <li style="display:flex; gap:16px; align-items:center; padding:14px; background:white; border:1px solid var(--undp-light-gray); margin-bottom:8px;">
+                  <span style="background:var(--undp-lighter); width:40px; height:40px; display:flex; align-items:center; justify-content:center; color:var(--undp-blue);">${icon(item.ic,{size:22})}</span>
+                  <div style="flex:1;">
+                    <strong>Módulo ${i+1}</strong>: ${item.tipo} · ~${Math.floor(Math.random()*3+1)}h
+                  </div>
+                  <span class="tag">Pendiente</span>
+                </li>
+              `).join("")}
+            </ol>
+
+            <h2 class="h2-icon">${icon("attach")} Recursos curados</h2>
+            <div class="cards-grid cols-3">${docs.map(recursoCard).join("")}</div>
+
+            <h2 class="h2-icon">${icon("solutions")} Herramientas vinculadas</h2>
+            <div class="cards-grid cols-2">${tools.map(solucionCard).join("")}</div>
+
+            <h2 class="h2-icon">${icon("dashboard")} Evaluación</h2>
+            <p>La ruta incluye evaluaciones por módulo (formativas) y una evaluación final integradora que valida la comprensión de los conceptos y la capacidad de aplicación en contexto territorial.</p>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  document.getElementById("rutas").innerHTML = RUTAS.map(r=>{
+    const pic = foto(r.id);
+    return `
+    <a href="aprendizaje.html?id=${r.id}" class="card">
+      <div class="card-media ${pic?'has-photo':'ods-'+r.color}" style="aspect-ratio:5/2; ${pic?`background-image:url('${pic}');`:''}">
+        <span class="media-tag">RUTA · ${r.duracion}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-eyebrow">${r.inscritos} inscritos</div>
+        <h3 class="card-title">${r.titulo}</h3>
+        <p class="card-desc">${r.descripcion}</p>
+        <div style="font-size:11px; color:var(--undp-dark-gray); margin: 12px 0;">
+          ${r.cursos} cursos · ${r.lecturas} lecturas · ${r.videos} videos · ${r.casos} casos
+        </div>
+        <div class="card-meta">${odsBadges(r.ods, 3)}</div>
+      </div>
+    </a>`;
+  }).join("");
+
+  const totalInscritos = RUTAS.reduce((s,r)=>s+r.inscritos,0);
+  document.getElementById("kInscritos").textContent = totalInscritos.toLocaleString("es-GT");
+</script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Editorial · PNUD Guatemala</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets/css/base-minimal.min.css">
+<link rel="stylesheet" href="assets/css/undp-custom.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<section class="detail-header">
+  <div class="container">
+    <div class="breadcrumb" style="color:rgba(255,255,255,0.7); padding:0 0 8px;">
+      <a href="index.html" style="color:rgba(255,255,255,0.7);">Inicio</a>
+      <span class="sep">/</span> Panel editorial
+    </div>
+    <div class="eyebrow">Acceso restringido · Editor temático</div>
+    <h1>Panel editorial</h1>
+    <p style="opacity:0.9; max-width:760px; margin:8px 0 0;">
+      Gestione la cola de revisión, la calidad de metadatos, las taxonomías y el calendario editorial.
+      Trazabilidad completa de quién aprueba, qué se publica y cuándo.
+    </p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+
+    <!-- KPIs editoriales -->
+    <div class="kpi-grid">
+      <div class="kpi"><strong>14</strong><span>En cola de revisión</span></div>
+      <div class="kpi kpi-yellow"><strong>6</strong><span>Esperando revisor técnico</span></div>
+      <div class="kpi kpi-green"><strong>8.4</strong><span>Días promedio de revisión</span></div>
+      <div class="kpi kpi-red"><strong>3</strong><span>Próximas a obsolescencia</span></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-target="t-cola">Cola de revisión</button>
+      <button class="tab" data-target="t-flujo">Flujo editorial</button>
+      <button class="tab" data-target="t-tax">Taxonomías</button>
+      <button class="tab" data-target="t-roles">Roles y permisos</button>
+      <button class="tab" data-target="t-calidad">Calidad de metadatos</button>
+    </div>
+
+    <div class="tab-panel active" id="t-cola">
+      <h2 style="font-size:18px; margin-bottom:16px;">Cola de revisión actual</h2>
+      <table class="table">
+        <thead>
+          <tr><th>Recurso</th><th>Tipo</th><th>Contribuidor</th><th>Estado</th><th>Días en cola</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Diagnóstico de seguridad alimentaria en el Corredor Seco</strong><div style="font-size:11px; color:var(--undp-dark-gray);">Programa: Resiliencia · 2024</div></td>
+            <td>Estudio</td><td>FAO Guatemala</td>
+            <td><span class="tag tag-yellow">En revisión técnica</span></td>
+            <td>3 días</td>
+            <td><a href="#" class="btn btn-sm btn-primary">Revisar</a></td>
+          </tr>
+          <tr>
+            <td><strong>Manual operativo de TMC con enfoque indígena v2</strong><div style="font-size:11px; color:var(--undp-dark-gray);">Programa: Reducción de Pobreza · 2024</div></td>
+            <td>Manual</td><td>Equipo Pobreza</td>
+            <td><span class="tag tag-blue">Metadatos validados</span></td>
+            <td>5 días</td>
+            <td><a href="#" class="btn btn-sm btn-primary">Aprobar</a></td>
+          </tr>
+          <tr>
+            <td><strong>Resultados del piloto de innovación pública en Mixco</strong><div style="font-size:11px; color:var(--undp-dark-gray);">Programa: Gobernanza · 2024</div></td>
+            <td>Sistematización</td><td>AccLab</td>
+            <td><span class="tag tag-red">Devuelto a contribuidor</span></td>
+            <td>9 días</td>
+            <td><a href="#" class="btn btn-sm">Ver observaciones</a></td>
+          </tr>
+          <tr>
+            <td><strong>Línea base: brechas de género en municipios fronterizos</strong><div style="font-size:11px; color:var(--undp-dark-gray);">Programa: Género · 2024</div></td>
+            <td>Investigación</td><td>SEPREM</td>
+            <td><span class="tag">Borrador</span></td>
+            <td>1 día</td>
+            <td><a href="#" class="btn btn-sm btn-primary">Validar metadatos</a></td>
+          </tr>
+          <tr>
+            <td><strong>Plan municipal de adaptación — Cobán</strong><div style="font-size:11px; color:var(--undp-dark-gray);">Programa: Resiliencia · 2025</div></td>
+            <td>Política</td><td>Municipalidad Cobán</td>
+            <td><span class="tag tag-yellow">En revisión técnica</span></td>
+            <td>2 días</td>
+            <td><a href="#" class="btn btn-sm btn-primary">Revisar</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tab-panel" id="t-flujo">
+      <h2 style="font-size:18px;">Flujo editorial estándar</h2>
+      <div style="background:white; border:1px solid var(--undp-light-gray); padding:32px;">
+        <ul class="timeline">
+          <li class="done"><strong>Carga inicial por contribuidor</strong><span>Completa formulario con metadatos obligatorios y adjunta archivo</span></li>
+          <li class="done"><strong>Revisión de metadatos por editor temático</strong><span>Valida taxonomías, vínculos con proyectos, ODS, territorios y poblaciones</span></li>
+          <li class="current"><strong>Revisión técnica por revisor temático</strong><span>Valida calidad de evidencia, rigor metodológico y pertinencia</span></li>
+          <li><strong>Aprobación final por editor general</strong><span>Verifica cumplimiento de estándares editoriales y firma publicación</span></li>
+          <li><strong>Publicación e indexación</strong><span>Sistema publica, indexa, notifica al autor y programa revisión periódica</span></li>
+          <li><strong>Revisión periódica (12-24 meses)</strong><span>Sistema agenda revisión para evitar obsolescencia</span></li>
+        </ul>
+      </div>
+
+      <h2 style="font-size:18px; margin-top:24px;">Estados editoriales posibles</h2>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        <span class="tag">Borrador</span>
+        <span class="tag tag-blue">En revisión</span>
+        <span class="tag tag-yellow">Observado</span>
+        <span class="tag tag-green">Validado</span>
+        <span class="tag tag-green">Publicado</span>
+        <span class="tag tag-red">Archivado / Obsoleto</span>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="t-tax">
+      <h2 style="font-size:18px;">Gestión de taxonomías controladas</h2>
+      <p class="text-muted">Vocabularios administrables desde el backend, sin intervención de desarrollo.</p>
+      <table class="table">
+        <thead><tr><th>Vocabulario</th><th>Términos</th><th>Última actualización</th><th>Responsable</th><th>Acción</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Áreas temáticas</strong></td><td>34</td><td>2026-04-12</td><td>Editor general</td><td><a href="#">Administrar</a></td></tr>
+          <tr><td><strong>ODS</strong></td><td>17</td><td>Sincronizado con ONU</td><td>Sistema</td><td><a href="#">Ver</a></td></tr>
+          <tr><td><strong>Territorios</strong></td><td>340 municipios + 22 departamentos</td><td>Sincronizado con INE</td><td>Sistema</td><td><a href="#">Ver</a></td></tr>
+          <tr><td><strong>Poblaciones objetivo</strong></td><td>12</td><td>2026-03-21</td><td>Editora temática</td><td><a href="#">Administrar</a></td></tr>
+          <tr><td><strong>Tipos de recurso</strong></td><td>14</td><td>2026-01-15</td><td>Editor general</td><td><a href="#">Administrar</a></td></tr>
+          <tr><td><strong>Tipos de evidencia</strong></td><td>9</td><td>2026-02-08</td><td>Editora temática</td><td><a href="#">Administrar</a></td></tr>
+          <tr><td><strong>Instituciones y socios</strong></td><td>87</td><td>2026-04-05</td><td>Editor general</td><td><a href="#">Administrar</a></td></tr>
+          <tr><td><strong>Nivel de utilidad</strong></td><td>6</td><td>Fijo institucional</td><td>—</td><td><a href="#">Ver</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tab-panel" id="t-roles">
+      <h2 style="font-size:18px;">Roles y permisos</h2>
+      <table class="table">
+        <thead><tr><th>Rol</th><th>Personas</th><th>Permisos clave</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Administrador</strong></td><td>2</td><td>Gestión total · Configuración · Roles · Taxonomías</td></tr>
+          <tr><td><strong>Editor general</strong></td><td>1</td><td>Aprueba publicaciones · Gestiona calendario editorial</td></tr>
+          <tr><td><strong>Editor temático</strong></td><td>6</td><td>Valida metadatos · Revisa por área temática</td></tr>
+          <tr><td><strong>Revisor técnico</strong></td><td>12</td><td>Valida calidad de evidencia</td></tr>
+          <tr><td><strong>Contribuidor</strong></td><td>87</td><td>Carga recursos, proyectos, lecciones</td></tr>
+          <tr><td><strong>Moderador de comunidad</strong></td><td>5</td><td>Modera foros · Aprueba miembros</td></tr>
+          <tr><td><strong>Usuario registrado</strong></td><td>4,231</td><td>Acceso completo · Descargas · Comentarios</td></tr>
+          <tr><td><strong>Usuario público</strong></td><td>—</td><td>Acceso a contenido abierto</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tab-panel" id="t-calidad">
+      <h2 style="font-size:18px;">Calidad de metadatos del repositorio</h2>
+      <div class="dash-grid">
+        <div class="dash-card">
+          <h3>Completitud por campo obligatorio</h3>
+          <table class="table" style="margin-top:8px;">
+            <tbody>
+              <tr><td>Título y descripción</td><td style="text-align:right;"><strong>100%</strong></td></tr>
+              <tr><td>Año y tipo</td><td style="text-align:right;"><strong>100%</strong></td></tr>
+              <tr><td>ODS vinculados</td><td style="text-align:right;"><strong>94%</strong></td></tr>
+              <tr><td>Territorio</td><td style="text-align:right;"><strong>89%</strong></td></tr>
+              <tr><td>Población objetivo</td><td style="text-align:right;"><strong>78%</strong></td></tr>
+              <tr><td>Proyecto vinculado</td><td style="text-align:right;"><strong>92%</strong></td></tr>
+              <tr><td>Instituciones</td><td style="text-align:right;"><strong>71%</strong></td></tr>
+              <tr><td>Nivel de utilidad</td><td style="text-align:right;"><strong>96%</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dash-card">
+          <h3>Vacíos editoriales detectados</h3>
+          <ul style="padding-left:20px; font-size:14px;">
+            <li><strong>14 recursos</strong> sin proyecto vinculado</li>
+            <li><strong>22 recursos</strong> sin ODS asignados</li>
+            <li><strong>8 proyectos</strong> sin lecciones aprendidas registradas</li>
+            <li><strong>3 territorios</strong> sin proyectos activos (vacío de cobertura)</li>
+            <li><strong>5 recursos</strong> próximos a obsolescencia (> 2 años)</li>
+          </ul>
+          <a href="#" class="btn btn-sm btn-secondary mt-2">Generar plan de cierre de vacíos</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div id="siteFooter"></div>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  mountChrome("home");
+  activateTabs();
+</script>
+</body>
+</html>

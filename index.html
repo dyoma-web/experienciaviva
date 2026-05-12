@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plataforma Nacional de Conocimiento Aplicado · PNUD Guatemala</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets/css/base-minimal.min.css">
+<link rel="stylesheet" href="assets/css/undp-custom.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Plataforma Nacional de Conocimiento Aplicado</div>
+    <h1>Convertir proyectos, evidencia y experiencias<br>en aprendizaje, colaboración y soluciones.</h1>
+    <p class="lead">
+      No es una biblioteca digital. Es una infraestructura de conocimiento aplicado que articula publicaciones,
+      proyectos, territorios, actores y aprendizajes para apoyar decisiones de política pública, formación de
+      capacidades y réplica de soluciones de desarrollo en Guatemala.
+    </p>
+
+    <form class="hero-search" onsubmit="event.preventDefault(); location.href='explorador.html?q='+encodeURIComponent(this.q.value);">
+      <input name="q" type="text" placeholder="Buscar publicaciones, proyectos, lecciones, soluciones, territorios…">
+      <button type="submit" class="btn btn-primary">Buscar evidencia</button>
+    </form>
+
+    <div class="hero-stats">
+      <div class="hero-stat"><strong>847</strong><span>Recursos curados</span></div>
+      <div class="hero-stat"><strong>62</strong><span>Proyectos vinculados</span></div>
+      <div class="hero-stat"><strong>184</strong><span>Lecciones aprendidas</span></div>
+      <div class="hero-stat"><strong>22</strong><span>Departamentos cubiertos</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- MÓDULOS -->
+<section class="section">
+  <div class="container">
+    <div class="section-eyebrow">Ecosistema funcional</div>
+    <h2 class="section-title">Doce módulos para activar el conocimiento</h2>
+    <p class="section-sub">
+      Cada módulo cumple una función específica del ciclo de gestión del conocimiento. Juntos forman una
+      arquitectura coherente, gobernada por curaduría editorial humana y taxonomías controladas.
+    </p>
+
+    <div class="modulos-grid" id="modulosGrid"></div>
+  </div>
+</section>
+
+<!-- DESTACADOS -->
+<section class="section section-light">
+  <div class="container">
+    <div class="flex-between mb-3">
+      <div>
+        <div class="section-eyebrow">Curaduría editorial</div>
+        <h2 class="section-title" style="margin:0;">Publicaciones destacadas</h2>
+      </div>
+      <a href="repositorio.html" class="btn btn-secondary">Ver repositorio completo</a>
+    </div>
+    <div class="cards-grid cols-4" id="recursosDestacados"></div>
+  </div>
+</section>
+
+<!-- PROYECTOS DESTACADOS -->
+<section class="section">
+  <div class="container">
+    <div class="flex-between mb-3">
+      <div>
+        <div class="section-eyebrow">Banco de proyectos</div>
+        <h2 class="section-title" style="margin:0;">Proyectos activos vinculados a evidencia</h2>
+      </div>
+      <a href="proyectos.html" class="btn btn-secondary">Ver todos los proyectos</a>
+    </div>
+    <div class="cards-grid cols-3" id="proyectosDestacados"></div>
+  </div>
+</section>
+
+<!-- BANNER -->
+<section class="section section-dark">
+  <div class="container">
+    <div style="display:grid; grid-template-columns: 2fr 1fr; gap: 48px; align-items:center;">
+      <div>
+        <div class="hero-eyebrow">Por qué sin IA generativa</div>
+        <h2 class="section-title" style="color:white;">Trazabilidad, soberanía y control editorial</h2>
+        <p style="opacity:0.9; font-size:16px;">
+          La Plataforma se construye sobre arquitectura de información, metadatos y curaduría humana —no sobre
+          modelos generativos. Esta decisión protege la integridad institucional: cada pieza publicada es
+          revisada, validada y auditada. La evidencia es trazable a su proyecto fuente, los aprendizajes son
+          firmados por equipos técnicos, y las decisiones de gobernanza editorial son humanas.
+        </p>
+        <a href="editorial.html" class="btn btn-primary mt-2">Ver gobernanza editorial</a>
+      </div>
+      <div>
+        <ul id="garantias" style="list-style:none; padding:0; margin:0; font-size:14px;"></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RUTAS DE APRENDIZAJE -->
+<section class="section">
+  <div class="container">
+    <div class="flex-between mb-3">
+      <div>
+        <div class="section-eyebrow">Aprendizaje</div>
+        <h2 class="section-title" style="margin:0;">Rutas formativas temáticas</h2>
+      </div>
+      <a href="aprendizaje.html" class="btn btn-secondary">Ver todas las rutas</a>
+    </div>
+    <div class="cards-grid cols-3" id="rutasDestacadas"></div>
+  </div>
+</section>
+
+<div id="siteFooter"></div>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  mountChrome("home");
+
+  const MODULOS = [
+    {h:"repositorio.html", i:"repository",  t:"Repositorio estructurado", d:"Publicaciones, datasets, videos y herramientas con metadatos completos."},
+    {h:"proyectos.html",   i:"projects",    t:"Banco de proyectos",       d:"Fichas estructuradas con resultados, productos, lecciones y contactos."},
+    {h:"explorador.html",  i:"explorer",    t:"Explorador de evidencia",  d:"Búsqueda avanzada que devuelve dossiers navegables, no listas planas."},
+    {h:"mapa.html",        i:"map",         t:"Mapa de conocimiento",     d:"Visualización territorial de proyectos, socios y resultados."},
+    {h:"dashboards.html",  i:"dashboard",   t:"Dashboards",               d:"Tableros de conocimiento e impacto por ODS, territorio y tema."},
+    {h:"lecciones.html",   i:"lessons",     t:"Banco de lecciones",       d:"Aprendizajes accionables: qué funcionó, qué no y bajo qué condiciones replicar."},
+    {h:"soluciones.html",  i:"solutions",   t:"Soluciones replicables",   d:"Metodologías y toolkits con plantillas listas para adaptar."},
+    {h:"aprendizaje.html", i:"learning",    t:"Rutas de aprendizaje",     d:"Itinerarios formativos conectados al repositorio y certificación."},
+    {h:"comunidades.html", i:"communities", t:"Comunidades de práctica",  d:"Espacios temáticos de intercambio entre expertos y profesionales."},
+    {h:"briefs.html",      i:"briefs",      t:"Constructor de briefs",    d:"Herramienta editorial humana para producir síntesis a partir de evidencia."},
+    {h:"editorial.html",   i:"editorial",   t:"Sistema editorial",        d:"Roles, flujos de revisión, calidad de metadatos y trazabilidad."},
+    {h:"editorial.html",   i:"taxonomy",    t:"Taxonomía controlada",     d:"Vocabularios administrables: temas, ODS, territorios, poblaciones."}
+  ];
+  const GARANTIAS = [
+    "Cada recurso firmado por editor",
+    "Revisión técnica obligatoria",
+    "Versionado completo de cambios",
+    "Soberanía sobre datos sensibles",
+    "Auditoría externa periódica",
+    "Cumplimiento normativo nacional"
+  ];
+  document.getElementById("garantias").innerHTML = GARANTIAS.map((g,i)=>
+    `<li style="display:flex; align-items:center; gap:12px; padding:10px 0; ${i<GARANTIAS.length-1?'border-bottom:1px solid rgba(255,255,255,0.15);':''}">
+      <span style="color:var(--undp-yellow);">${icon("check",{size:18})}</span>${g}
+    </li>`
+  ).join("");
+
+  document.getElementById("modulosGrid").innerHTML = MODULOS.map(m => `
+    <a href="${m.h}" class="modulo-card">
+      <div class="modulo-icon">${icon(m.i, {size:28})}</div>
+      <h3 class="modulo-title">${m.t}</h3>
+      <p class="modulo-desc">${m.d}</p>
+      <span class="modulo-arrow">${icon("arrowRight",{size:20})}</span>
+    </a>
+  `).join("");
+
+  // Destacados — primeros 4 recursos
+  document.getElementById("recursosDestacados").innerHTML =
+    RECURSOS.slice(0, 4).map(recursoCard).join("");
+
+  // Proyectos destacados — 3 activos
+  document.getElementById("proyectosDestacados").innerHTML =
+    PROYECTOS.filter(p => p.estado === "Activo").slice(0, 3).map(proyectoCard).join("");
+
+  // Rutas destacadas — primeras 3
+  document.getElementById("rutasDestacadas").innerHTML = RUTAS.slice(0, 3).map(r => {
+    const pic = foto(r.id);
+    return `
+    <a href="aprendizaje.html?id=${r.id}" class="card">
+      <div class="card-media ${pic?'has-photo':'ods-'+r.color}" style="aspect-ratio: 5/2; ${pic?`background-image:url('${pic}');`:''}">
+        <span class="media-tag">RUTA FORMATIVA</span>
+      </div>
+      <div class="card-body">
+        <div class="card-eyebrow">${r.duracion} · ${r.inscritos} inscritos</div>
+        <h3 class="card-title">${r.titulo}</h3>
+        <p class="card-desc">${r.descripcion}</p>
+        <div class="card-meta">
+          ${odsBadges(r.ods, 3)}
+          <span style="margin-left:8px;">${r.cursos} cursos · ${r.lecturas} lecturas · ${r.videos} videos</span>
+        </div>
+      </div>
+    </a>`;
+  }).join("");
+</script>
+</body>
+</html>

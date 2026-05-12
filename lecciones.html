@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banco de Lecciones Aprendidas · PNUD Guatemala</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets/css/base-minimal.min.css">
+<link rel="stylesheet" href="assets/css/undp-custom.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<section class="detail-header">
+  <div class="container">
+    <div class="breadcrumb" style="color:rgba(255,255,255,0.7); padding:0 0 8px;">
+      <a href="index.html" style="color:rgba(255,255,255,0.7);">Inicio</a>
+      <span class="sep">/</span> Lecciones aprendidas
+    </div>
+    <div class="eyebrow">Banco de lecciones aprendidas</div>
+    <h1>Aprendizajes accionables del trabajo en territorio</h1>
+    <p style="opacity:0.9; max-width:760px; margin:8px 0 0;">
+      Fichas cortas y reutilizables que documentan qué funcionó, qué no funcionó y bajo qué condiciones es
+      posible replicar lo aprendido. La memoria institucional convertida en evidencia accionable.
+    </p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+
+    <div class="kpi-grid">
+      <div class="kpi"><strong id="kTotal">10</strong><span>Lecciones documentadas</span></div>
+      <div class="kpi kpi-green"><strong id="kProy">10</strong><span>Proyectos de origen</span></div>
+      <div class="kpi kpi-yellow"><strong id="kOds">12</strong><span>ODS cubiertos</span></div>
+      <div class="kpi kpi-red"><strong>74%</strong><span>Lecciones con replicación documentada</span></div>
+    </div>
+
+    <div class="layout-with-sidebar">
+      <aside class="sidebar-filters">
+        <h3 style="margin:0 0 16px; font-size:16px;">Filtrar lecciones</h3>
+
+        <div class="filter-group">
+          <h4>Proyecto</h4>
+          <div class="filter-options" id="fProy"></div>
+        </div>
+
+        <div class="filter-group">
+          <h4>ODS</h4>
+          <div class="filter-options" id="fOds"></div>
+        </div>
+
+        <div class="filter-group">
+          <h4>Territorio</h4>
+          <div class="filter-options" id="fTerr"></div>
+        </div>
+
+        <button class="btn btn-secondary btn-block" onclick="aplicar()">Aplicar filtros</button>
+      </aside>
+
+      <div>
+        <div class="banner banner-info" id="banner"></div>
+
+        <div class="list-toolbar">
+          <div><strong id="resultCount">10</strong> lecciones</div>
+          <div id="toolbarBtn"></div>
+        </div>
+
+        <div class="cards-grid cols-2" id="listado"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="siteFooter"></div>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  mountChrome("lecciones");
+  document.getElementById("banner").innerHTML = `<span style="display:inline-flex;align-items:center;gap:8px;color:var(--undp-blue);">${icon("lessons",{size:18})}</span> Las lecciones aprendidas son revisadas por el equipo técnico del proyecto y firmadas por su contacto técnico antes de publicarse. Pueden ser reutilizadas en nuevos diseños, evaluaciones o propuestas.`;
+  document.getElementById("toolbarBtn").innerHTML = `<a href="#" class="btn btn-sm btn-secondary">${icon("pencil",{size:14})} Aportar lección</a>`;
+
+  const proys = [...new Set(LECCIONES.map(l=>l.proyectoNombre))];
+  document.getElementById("fProy").innerHTML = proys.map(p=>`<label class="filter-option"><input type="checkbox" value="${p}"> ${p.length>32?p.substring(0,32)+"…":p}</label>`).join("");
+
+  const odsMap = {};
+  LECCIONES.forEach(l => (l.ods||[]).forEach(o => odsMap[o] = (odsMap[o]||0)+1));
+  document.getElementById("fOds").innerHTML = Object.entries(odsMap).sort((a,b)=>a[0]-b[0]).map(([k,v])=>
+    `<label class="filter-option"><input type="checkbox" value="${k}"> <span class="ods-badge ods-${k}">${k}</span> ${ODS_NOMBRES[k]} <span class="count">${v}</span></label>`
+  ).join("");
+
+  const terrMap = {};
+  LECCIONES.forEach(l => (l.territorio||[]).forEach(t => terrMap[t] = (terrMap[t]||0)+1));
+  document.getElementById("fTerr").innerHTML = Object.entries(terrMap).sort().map(([k,v])=>
+    `<label class="filter-option"><input type="checkbox" value="${k}"> ${getTerritorio(k)?.nombre||k} <span class="count">${v}</span></label>`
+  ).join("");
+
+  function render(arr) {
+    document.getElementById("resultCount").textContent = arr.length;
+    document.getElementById("listado").innerHTML = arr.map(leccionCard).join("") || '<p class="text-muted">Sin resultados.</p>';
+  }
+  render(LECCIONES);
+
+  function aplicar() {
+    const checked = sel => Array.from(document.querySelectorAll(`#${sel} input:checked`)).map(i=>i.value);
+    const p = checked("fProy"), o = checked("fOds").map(Number), t = checked("fTerr");
+    const filt = LECCIONES.filter(l =>
+      (!p.length || p.includes(l.proyectoNombre)) &&
+      (!o.length || o.some(x => l.ods.includes(x))) &&
+      (!t.length || t.some(x => (l.territorio||[]).includes(x)))
+    );
+    render(filt);
+  }
+</script>
+</body>
+</html>

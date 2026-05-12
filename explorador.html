@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Explorador de Evidencia · PNUD Guatemala</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets/css/base-minimal.min.css">
+<link rel="stylesheet" href="assets/css/undp-custom.css">
+</head>
+<body>
+
+<div id="siteHeader"></div>
+
+<section class="detail-header">
+  <div class="container">
+    <div class="breadcrumb" style="color:rgba(255,255,255,0.7); padding:0 0 8px;">
+      <a href="index.html" style="color:rgba(255,255,255,0.7);">Inicio</a>
+      <span class="sep">/</span> Explorador de evidencia
+    </div>
+    <div class="eyebrow">Explorador de evidencia</div>
+    <h1>Construya un dossier de evidencia en tres pasos</h1>
+    <p style="opacity:0.9; max-width:760px; margin:8px 0 0;">
+      Seleccione filtros temáticos, territoriales o poblacionales. El sistema le entregará un dossier
+      navegable —no una lista plana— con publicaciones, proyectos, lecciones, herramientas, eventos y cursos
+      conectados a su consulta.
+    </p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+
+    <!-- PANEL DE FILTROS COMBINABLES -->
+    <div style="background: var(--undp-lighter); padding: 24px; margin-bottom: 32px;">
+      <h3 style="margin:0 0 16px; font-size:16px;">Construya su consulta</h3>
+      <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+        <div>
+          <label style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Tema / Programa</label>
+          <select id="fPrograma" style="width:100%; padding:8px; margin-top:4px;">
+            <option value="">Todos los programas</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">ODS</label>
+          <select id="fOds" style="width:100%; padding:8px; margin-top:4px;">
+            <option value="">Todos los ODS</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Territorio</label>
+          <select id="fTerritorio" style="width:100%; padding:8px; margin-top:4px;">
+            <option value="">Todo el país</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Población</label>
+          <select id="fPoblacion" style="width:100%; padding:8px; margin-top:4px;">
+            <option value="">Todas las poblaciones</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Año desde</label>
+          <select id="fAnio" style="width:100%; padding:8px; margin-top:4px;">
+            <option value="">Cualquier año</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Tipo de evidencia</label>
+          <select id="fTipo" style="width:100%; padding:8px; margin-top:4px;">
+            <option value="">Todos los tipos</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Búsqueda libre</label>
+          <input id="fQuery" type="text" placeholder="palabras clave…" style="width:100%; padding:8px; margin-top:4px; border:1px solid var(--undp-light-gray);">
+        </div>
+        <div style="display:flex; align-items:flex-end;">
+          <button onclick="explorar()" class="btn btn-primary btn-block">Construir dossier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOSSIER -->
+    <div id="dossier"></div>
+  </div>
+</section>
+
+<div id="siteFooter"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  mountChrome("explorador");
+
+  // Poblar selects
+  const progs = [...new Set(PROYECTOS.map(p=>p.programa))].sort();
+  document.getElementById("fPrograma").innerHTML += progs.map(p=>`<option value="${p}">${p}</option>`).join("");
+  document.getElementById("fOds").innerHTML += Object.entries(ODS_NOMBRES).map(([k,v])=>`<option value="${k}">ODS ${k}: ${v}</option>`).join("");
+  document.getElementById("fTerritorio").innerHTML += TERRITORIOS.map(t=>`<option value="${t.id}">${t.nombre}</option>`).join("");
+  const pobs = [...new Set(RECURSOS.flatMap(r=>r.poblacion))].sort();
+  document.getElementById("fPoblacion").innerHTML += pobs.map(p=>`<option value="${p}">${p}</option>`).join("");
+  const tipos = [...new Set(RECURSOS.map(r=>r.tipo))].sort();
+  document.getElementById("fTipo").innerHTML += tipos.map(t=>`<option value="${t}">${t}</option>`).join("");
+
+  // Pre-cargar desde URL
+  const urlQ = qs("q");
+  if (urlQ) document.getElementById("fQuery").value = urlQ;
+  const urlP = qs("proyecto");
+
+  function explorar() {
+    const prog = document.getElementById("fPrograma").value;
+    const ods = document.getElementById("fOds").value;
+    const terr = document.getElementById("fTerritorio").value;
+    const pob = document.getElementById("fPoblacion").value;
+    const anio = document.getElementById("fAnio").value;
+    const tipo = document.getElementById("fTipo").value;
+    const query = document.getElementById("fQuery").value.toLowerCase();
+
+    function matchRecurso(r) {
+      if (urlP && r.proyecto !== urlP) return false;
+      if (prog && r.programa !== prog) return false;
+      if (ods && !r.ods.includes(+ods)) return false;
+      if (terr && !r.territorio.includes(terr)) return false;
+      if (pob && !r.poblacion.includes(pob)) return false;
+      if (anio && r.anio < +anio) return false;
+      if (tipo && r.tipo !== tipo) return false;
+      if (query) {
+        const txt = (r.titulo+" "+r.descripcion+" "+r.keywords.join(" ")).toLowerCase();
+        if (!txt.includes(query)) return false;
+      }
+      return true;
+    }
+
+    function matchProyecto(p) {
+      if (urlP && p.id !== urlP) return false;
+      if (prog && p.programa !== prog) return false;
+      if (ods && !p.ods.includes(+ods)) return false;
+      if (terr && !p.territorio.includes(terr)) return false;
+      if (pob && !p.poblacion.includes(pob)) return false;
+      if (query) {
+        const txt = (p.nombre+" "+p.resumen+" "+p.objetivo).toLowerCase();
+        if (!txt.includes(query)) return false;
+      }
+      return true;
+    }
+
+    function matchLeccion(l) {
+      if (ods && !l.ods.includes(+ods)) return false;
+      if (terr && !l.territorio.includes(terr)) return false;
+      if (query) {
+        const txt = (l.titulo+" "+l.queSeHizo+" "+l.queFunciono).toLowerCase();
+        if (!txt.includes(query)) return false;
+      }
+      return true;
+    }
+
+    function matchSolucion(s) {
+      if (ods && !s.ods.includes(+ods)) return false;
+      if (query) {
+        const txt = (s.nombre+" "+s.problema).toLowerCase();
+        if (!txt.includes(query)) return false;
+      }
+      return true;
+    }
+
+    function matchRuta(r) {
+      if (ods && !r.ods.includes(+ods)) return false;
+      if (query) {
+        const txt = (r.titulo+" "+r.descripcion).toLowerCase();
+        if (!txt.includes(query)) return false;
+      }
+      return true;
+    }
+
+    const rRecursos = RECURSOS.filter(matchRecurso);
+    const rProyectos = PROYECTOS.filter(matchProyecto);
+    const rLecciones = LECCIONES.filter(matchLeccion);
+    const rSoluciones = SOLUCIONES.filter(matchSolucion);
+    const rRutas = RUTAS.filter(matchRuta);
+    const rEventos = EVENTOS.filter(e => !urlP || e.proyecto === urlP);
+
+    const socios = [...new Set(rProyectos.flatMap(p=>p.socios||[]))];
+    const instituciones = [...new Set(rProyectos.flatMap(p=>p.instituciones||[]))];
+
+    const dossier = document.getElementById("dossier");
+    dossier.innerHTML = `
+      <div class="dossier-header">
+        <h2 style="margin:0 0 8px; display:flex; align-items:center; gap:10px;">${icon("case",{size:24,color:"var(--undp-blue)"})} Dossier de evidencia consolidado</h2>
+        <p style="margin:0;">
+          Resultados para: ${query ? '<strong>"'+query+'"</strong>' : ""}
+          ${prog ? '· Programa: <strong>'+prog+'</strong>' : ""}
+          ${ods ? '· ODS '+ods : ""}
+          ${terr ? '· Territorio: '+getTerritorio(terr)?.nombre : ""}
+          ${pob ? '· Población: '+pob : ""}
+        </p>
+        <div style="margin-top: 12px;">
+          <a href="#" class="btn btn-sm btn-secondary">${icon("download",{size:14})} Exportar dossier (PDF)</a>
+          <a href="#" class="btn btn-sm btn-secondary">${icon("package",{size:14})} Descargar paquete (ZIP)</a>
+          <a href="briefs.html" class="btn btn-sm btn-primary">${icon("pencil",{size:14})} Solicitar brief</a>
+        </div>
+      </div>
+
+      <div class="dossier-section">
+        <h3>Publicaciones relevantes <span class="count">${rRecursos.length}</span></h3>
+        <div class="cards-grid cols-3">${rRecursos.slice(0,6).map(recursoCard).join("") || '<p class="text-muted">Sin resultados.</p>'}</div>
+      </div>
+
+      <div class="dossier-section">
+        <h3>Proyectos asociados <span class="count">${rProyectos.length}</span></h3>
+        <div class="cards-grid cols-3">${rProyectos.slice(0,6).map(proyectoCard).join("") || '<p class="text-muted">Sin resultados.</p>'}</div>
+      </div>
+
+      <div class="dossier-section">
+        <h3>Lecciones aprendidas <span class="count">${rLecciones.length}</span></h3>
+        <div class="cards-grid cols-2">${rLecciones.slice(0,4).map(leccionCard).join("") || '<p class="text-muted">Sin resultados.</p>'}</div>
+      </div>
+
+      <div class="dossier-section">
+        <h3>Soluciones replicables <span class="count">${rSoluciones.length}</span></h3>
+        <div class="cards-grid cols-2">${rSoluciones.slice(0,4).map(solucionCard).join("") || '<p class="text-muted">Sin resultados.</p>'}</div>
+      </div>
+
+      <div class="dossier-section">
+        <h3>Rutas de aprendizaje sugeridas <span class="count">${rRutas.length}</span></h3>
+        <div class="cards-grid cols-3">${rRutas.slice(0,3).map(r => `
+          <a href="aprendizaje.html?id=${r.id}" class="card">
+            <div class="card-media ods-${r.color}" style="aspect-ratio:5/2;">RUTA</div>
+            <div class="card-body">
+              <h3 class="card-title">${r.titulo}</h3>
+              <p class="card-desc">${r.descripcion}</p>
+              <div class="card-meta"><span>${r.duracion}</span><span style="margin-left:8px;">${r.inscritos} inscritos</span></div>
+            </div>
+          </a>`).join("") || '<p class="text-muted">Sin resultados.</p>'}</div>
+      </div>
+
+      <div class="dossier-section">
+        <h3>Eventos relacionados <span class="count">${rEventos.length}</span></h3>
+        <table class="table">
+          <thead><tr><th>Fecha</th><th>Evento</th><th>Tipo</th><th>Lugar</th></tr></thead>
+          <tbody>${rEventos.map(e=>`<tr><td>${fmtDate(e.fecha)}</td><td>${e.nombre}</td><td><span class="tag tag-blue">${e.tipo}</span></td><td>${e.lugar}</td></tr>`).join("") || '<tr><td colspan="4" class="text-muted">Sin eventos.</td></tr>'}</tbody>
+        </table>
+      </div>
+
+      <div class="dossier-section">
+        <h3>Socios e instituciones activas</h3>
+        <p><strong>Socios:</strong> ${socios.map(s=>`<span class="tag tag-blue">${s}</span>`).join(" ") || '<span class="text-muted">—</span>'}</p>
+        <p><strong>Instituciones:</strong> ${instituciones.map(i=>`<span class="tag">${i}</span>`).join(" ") || '<span class="text-muted">—</span>'}</p>
+      </div>
+
+      <div class="dossier-section">
+        <h3>Visualización rápida</h3>
+        <div class="dash-grid">
+          <div class="dash-card">
+            <h3>Distribución de recursos por año</h3>
+            <canvas id="chart1"></canvas>
+          </div>
+          <div class="dash-card">
+            <h3>Distribución por tipo de evidencia</h3>
+            <canvas id="chart2"></canvas>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Mini gráficas
+    setTimeout(()=>{
+      const byYear = {};
+      rRecursos.forEach(r => byYear[r.anio] = (byYear[r.anio]||0)+1);
+      const byType = {};
+      rRecursos.forEach(r => byType[r.tipo] = (byType[r.tipo]||0)+1);
+
+      if (window.Chart && rRecursos.length) {
+        new Chart(document.getElementById("chart1"), {
+          type:"bar",
+          data:{labels:Object.keys(byYear).sort(), datasets:[{label:"Recursos", data:Object.keys(byYear).sort().map(k=>byYear[k]), backgroundColor:"#006EB5"}]},
+          options:{plugins:{legend:{display:false}},responsive:true}
+        });
+        new Chart(document.getElementById("chart2"), {
+          type:"doughnut",
+          data:{labels:Object.keys(byType), datasets:[{data:Object.values(byType), backgroundColor:["#006EB5","#FFEB00","#3F7E44","#FF3A21","#A21942","#56C02B","#DD1367","#00689D"]}]},
+          options:{responsive:true}
+        });
+      }
+    }, 100);
+  }
+
+  explorar();
+</script>
+</body>
+</html>
