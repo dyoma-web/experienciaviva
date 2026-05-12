@@ -449,13 +449,17 @@ img { max-width: 100%; display: block; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
   border-radius: 4px;
   color: white;
   font-weight: 700;
-  font-size: 12px;
-  margin-right: 4px;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0.2px;
+  margin-right: 6px;
+  font-variant-numeric: tabular-nums;
 }
 .ods-1 { background: var(--ods-1); }   .ods-2 { background: var(--ods-2); }
 .ods-3 { background: var(--ods-3); }   .ods-4 { background: var(--ods-4); }
